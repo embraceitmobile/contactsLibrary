@@ -1,0 +1,38 @@
+apply plugin: 'maven-publish'
+
+def githubProperties = new Properties()
+githubProperties.load(new FileInputStream(rootProject.file("gradle.properties")))
+
+def _groupId = 'com.cubivue'
+def _artifactId = rootProject.name
+def _version = rootProject.versionName
+def _githubUser = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
+def _githubPassword = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
+
+publishing {
+    publications {
+        releaseAar(MavenPublication) {
+            groupId _groupId
+            artifactId _artifactId
+            version _version
+            artifact("$rootDir/$_artifactId/build/outputs/aar/$_artifactId-release.aar")
+        }
+
+        debugAar(MavenPublication) {
+            groupId _groupId
+            artifactId "$_artifactId-debug"
+            version _version
+            artifact("$rootDir/$_artifactId/build/outputs/aar/$_artifactId-debug.aar")
+        }
+    }
+
+    repositories {
+        maven {
+            url = uri("https://maven.pkg.github.com/$_githubUser/$_artifactId")
+            credentials {
+                username = _githubUser
+                password = _githubPassword
+            }
+        }
+    }
+}
