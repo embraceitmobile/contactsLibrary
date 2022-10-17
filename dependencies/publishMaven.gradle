@@ -1,7 +1,7 @@
 apply plugin: 'maven-publish'
 
-def githubProperties = new Properties()
-githubProperties.load(new FileInputStream(rootProject.file("gradle.properties")))
+//def githubProperties = new Properties()
+//githubProperties.load(new FileInputStream(rootProject.file("gradle.properties")))
 
 def _groupId = 'com.github.embraceitmobile'
 def _artifactId = rootProject.name
