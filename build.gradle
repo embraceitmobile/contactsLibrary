@@ -22,6 +22,11 @@ allprojects {
                 password = project.property("gpr.key")
             }
         }
+
+        maven {
+            url "https://jitpack.io"
+            credentials { username = project.property("gpr.key")}
+        }
     }
 }
 
