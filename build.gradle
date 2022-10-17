@@ -17,15 +17,15 @@ allprojects {
 
         maven {
             url "https://maven.pkg.github.com/embraceitmobile/contactsLibrary"
-            credentials {
-                username = project.property("gpr.usr")
-                password = project.property("gpr.key")
-            }
+//            credentials {
+//                username = project.property("gpr.usr")
+//                password = project.property("gpr.key")
+//            }
         }
 
         maven {
             url "https://jitpack.io"
-            credentials { username = project.property("gpr.key")}
+//            credentials { username = project.property("gpr.key")}
         }
     }
 }
