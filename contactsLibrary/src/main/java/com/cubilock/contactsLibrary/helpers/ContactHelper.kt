@@ -471,6 +471,30 @@ object ContactHelper {
     }
 
     @SuppressLint("Range")
+    fun deleteContactByNumber(context: Context, phone: String?): Boolean {
+        val cr = context.contentResolver
+        val contactUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phone))
+        val cur = cr.query(contactUri, null, null, null, null)
+        try {
+            if (cur!!.moveToFirst()) {
+                do {
+                    val lookupKey =
+                        cur.getString(cur.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY))
+                    val uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI,
+                        lookupKey)
+                    cr.delete(uri, null, null)
+                        return true
+                } while (cur.moveToNext())
+            }
+        } catch (e: java.lang.Exception) {
+            println(e.stackTrace)
+        } finally {
+            cur!!.close()
+        }
+        return false
+    }
+
+    @SuppressLint("Range")
     fun deleteContactById(context: Context, id: String) {
         val cr = context.contentResolver
         val cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
@@ -499,11 +523,11 @@ object ContactHelper {
 
     fun contactExists(context: Context, name: String?): Boolean {
         val lookupUri = Uri.withAppendedPath(
-            ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+            PhoneLookup.CONTENT_FILTER_URI,
             Uri.encode(name))
-        val mPhoneNumberProjection = arrayOf(ContactsContract.PhoneLookup._ID,
-            ContactsContract.PhoneLookup.NUMBER,
-            ContactsContract.PhoneLookup.DISPLAY_NAME
+        val mPhoneNumberProjection = arrayOf(PhoneLookup._ID,
+            PhoneLookup.NUMBER,
+            PhoneLookup.DISPLAY_NAME
         )
         val cur = context.contentResolver.query(lookupUri, mPhoneNumberProjection, null, null, null)
         try {

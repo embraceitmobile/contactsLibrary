@@ -15,13 +15,13 @@ allprojects {
         google()
         mavenCentral()
 
-        maven {
-            url "https://maven.pkg.github.com/embraceitmobile/contactsLibrary"
+//        maven {
+//            url "https://maven.pkg.github.com/embraceitmobile/contactsLibrary"
 //            credentials {
 //                username = project.property("gpr.usr")
 //                password = project.property("gpr.key")
 //            }
-        }
+//        }
 
         maven {
             url "https://jitpack.io"
