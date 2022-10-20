@@ -1,7 +1,5 @@
 package com.cubilock.contactsLibrary
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log

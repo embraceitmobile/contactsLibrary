@@ -1,4 +1,4 @@
-package com.cubilock.contactslibrary
+package com.cubilock.contactsLibrary
 
 import org.junit.Test
 

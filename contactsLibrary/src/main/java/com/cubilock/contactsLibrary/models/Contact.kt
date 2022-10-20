@@ -1,4 +1,4 @@
-package com.cubilock.contactslibrary.models
+package com.cubilock.contactsLibrary.models
 
 
 data class Contact(

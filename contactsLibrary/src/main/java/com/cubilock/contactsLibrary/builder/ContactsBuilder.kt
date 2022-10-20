@@ -1,9 +1,9 @@
-package com.cubilock.contactslibrary.builder
+package com.cubilock.contactsLibrary.builder
 
-import com.cubilock.contactslibrary.models.Email
-import com.cubilock.contactslibrary.models.Name
-import com.cubilock.contactslibrary.models.Number
-import com.cubilock.contactslibrary.models.WorkInfo
+import com.cubilock.contactsLibrary.models.Email
+import com.cubilock.contactsLibrary.models.Name
+import com.cubilock.contactsLibrary.models.Number
+import com.cubilock.contactsLibrary.models.WorkInfo
 
 class ContactsBuilder(
     val name: Name?,

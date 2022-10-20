@@ -1,4 +1,4 @@
-package com.cubilock.contactslibrary.helpers
+package com.cubilock.contactsLibrary.helpers
 
 import android.annotation.SuppressLint
 import android.content.ContentProviderOperation
@@ -13,9 +13,9 @@ import android.provider.ContactsContract
 import android.provider.ContactsContract.CommonDataKinds.*
 import android.provider.ContactsContract.PhoneLookup
 import android.util.Log
-import com.cubilock.contactslibrary.models.*
-import com.cubilock.contactslibrary.models.Email
-import com.cubilock.contactslibrary.models.Number
+import com.cubilock.contactsLibrary.models.*
+import com.cubilock.contactsLibrary.models.Email
+import com.cubilock.contactsLibrary.models.Number
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
