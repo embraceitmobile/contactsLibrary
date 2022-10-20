@@ -2,7 +2,7 @@ package com.cubilock.contactsLibrary.models
 
 
 data class Contact(
-    val id: String? = ""
+    val id: String? = "",
     val name: Name? = Name(),
     val phoneticName: Name? = Name(),
     val number: Number? = Number(),

@@ -3,9 +3,8 @@ package com.cubilock.contactsLibrary
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.cubilock.contactslibrary.helpers.ContactHelper
-import com.cubilock.contactslibrary.models.*
-import com.cubilock.contactslibrary.models.Number
+import com.cubilock.contactsLibrary.helpers.ContactHelper
+import com.cubilock.contactsLibrary.models.*
 
 class MainActivity : AppCompatActivity() {
 
