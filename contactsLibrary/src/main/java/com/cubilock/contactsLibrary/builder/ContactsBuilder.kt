@@ -1,15 +1,15 @@
 package com.cubilock.contactsLibrary.builder
 
-import com.cubilock.contactsLibrary.models.Email
-import com.cubilock.contactsLibrary.models.Name
-import com.cubilock.contactsLibrary.models.Number
-import com.cubilock.contactsLibrary.models.WorkInfo
+import com.cubilock.contactsLibrary.models.LibararyEmail
+import com.cubilock.contactsLibrary.models.LibraryName
+import com.cubilock.contactsLibrary.models.LibraryNumber
+import com.cubilock.contactsLibrary.models.LibraryContactWorkInfo
 
 class ContactsBuilder(
-    val name: Name?,
-    val number: Number?,
-    val email: Email?,
-    val workInfo: WorkInfo?,
+    val name: LibraryName?,
+    val number: LibraryNumber?,
+    val email: LibararyEmail?,
+    val libraryContactWorkInfo: LibraryContactWorkInfo?,
     val profilePicture: String?,
     val label: String?
 ) {
@@ -18,7 +18,7 @@ class ContactsBuilder(
             this(builder.name,
                 builder.number,
                 builder.email,
-                builder.workInfo,
+                builder.libraryContactWorkInfo,
                 builder.profilePicture,
                 builder.label,
             )
@@ -28,13 +28,13 @@ class ContactsBuilder(
     }
 
     class Builder {
-        var name: Name? = null
+        var name: LibraryName? = null
             private set
-        var number: Number? = null
+        var number: LibraryNumber? = null
             private set
-        var email: Email? = null
+        var email: LibararyEmail? = null
             private set
-        var workInfo: WorkInfo? = null
+        var libraryContactWorkInfo: LibraryContactWorkInfo? = null
             private set
         var profilePicture: String? = null
             private set

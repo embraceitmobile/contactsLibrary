@@ -14,7 +14,7 @@ import android.provider.ContactsContract.CommonDataKinds.*
 import android.provider.ContactsContract.PhoneLookup
 import android.util.Log
 import com.cubilock.contactsLibrary.models.*
-import com.cubilock.contactsLibrary.models.Email
+import com.cubilock.contactsLibrary.models.LibararyEmail
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -22,7 +22,7 @@ import java.io.InputStream
 
 object ContactHelper {
 
-    fun addContact(context: Context, contact: Contact): Boolean{
+    fun addContact(context: Context, contact: LibraryContact): Boolean{
         val ops = ArrayList<ContentProviderOperation>()
 
         ops.add(ContentProviderOperation.newInsert(
@@ -149,7 +149,7 @@ object ContactHelper {
 
         //------------------------------------------------------ Organization
 
-        contact.workInfo?.let {
+        contact.libraryContactWorkInfo?.let {
             ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                 .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
                 .withValue(ContactsContract.Data.MIMETYPE,
@@ -212,8 +212,8 @@ object ContactHelper {
 
 
     @SuppressLint("Range")
-    fun getContacts(ctx: Context): List<Contact>? {
-        val list: MutableList<Contact> = ArrayList()
+    fun getContacts(ctx: Context): List<LibraryContact>? {
+        val list: MutableList<LibraryContact> = ArrayList()
         val contentResolver = ctx.contentResolver
         val cursor =
             contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
@@ -230,13 +230,13 @@ object ContactHelper {
                     val address = getAddressFromContact(contentResolver, id)
                     val workInfo = getWorkInfoFromContact(contentResolver, id)
                     val profilePicture = getPictureFromContact(contentResolver, id)
-                    val contact = Contact(
+                    val contact = LibraryContact(
                         name = name,
                         phoneticName = phoneticName,
                         number = number,
                         email = email,
                         address = address,
-                        workInfo = workInfo,
+                        libraryContactWorkInfo = workInfo,
                         profilePicture = profilePicture
                     )
                     list.add(contact)
@@ -247,7 +247,7 @@ object ContactHelper {
         return list
     }
 
-    private fun getPictureFromContact(contentResolver: ContentResolver, id: String): ContactPicture {
+    private fun getPictureFromContact(contentResolver: ContentResolver, id: String): LibraryContactPicture {
         val inputStream: InputStream? =
             ContactsContract.Contacts.openContactPhotoInputStream(contentResolver,
                 ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id.toLong()))
@@ -260,37 +260,37 @@ object ContactHelper {
             photo = BitmapFactory.decodeStream(inputStream)
         }
 
-        return ContactPicture(photo)
+        return LibraryContactPicture(photo)
     }
 
     @SuppressLint("Range")
-    private fun getNameFromContact(cursor: Cursor, nameType: String): Name {
+    private fun getNameFromContact(cursor: Cursor, nameType: String): LibraryName {
         val name = cursor.getString(cursor.getColumnIndex(
             nameType))
         if(name.isNullOrBlank()){
-            return Name()
+            return LibraryName()
         }
         val splittedName = name.split(" ")
         if(splittedName.isNullOrEmpty()){
-            return Name()
+            return LibraryName()
         } else {
             when (splittedName.size) {
                 3 -> {
-                    return Name(firstName = splittedName[0], middleName = splittedName[1], lastName = splittedName[2])
+                    return LibraryName(firstName = splittedName[0], middleName = splittedName[1], lastName = splittedName[2])
                 }
                 2 -> {
-                    return Name(firstName = splittedName[0], lastName = splittedName[1])
+                    return LibraryName(firstName = splittedName[0], lastName = splittedName[1])
                 }
                 1 -> {
-                    return Name(displayName = splittedName[0])
+                    return LibraryName(displayName = splittedName[0])
                 }
             }
         }
-        return Name()
+        return LibraryName()
     }
 
     @SuppressLint("Range")
-    private fun getNumberFromContact(contentResolver: ContentResolver, id: String): com.cubilock.contactsLibrary.models.Number {
+    private fun getNumberFromContact(contentResolver: ContentResolver, id: String): com.cubilock.contactsLibrary.models.LibraryNumber {
         var homeContact: String? = ""
         var workContact: String? = ""
         var otherContact: String? = ""
@@ -321,11 +321,11 @@ object ContactHelper {
             }
         }
         cursorInfo.close()
-        return Number(homeContact, workContact, otherContact)
+        return LibraryNumber(homeContact, workContact, otherContact)
     }
 
     @SuppressLint("Range")
-    private fun getEmailFromContact(contentResolver: ContentResolver, id: String): Email {
+    private fun getEmailFromContact(contentResolver: ContentResolver, id: String): LibararyEmail {
         var homeEmail: String? = ""
         var workEmail: String? = ""
         var otherEmail: String? = ""
@@ -357,11 +357,11 @@ object ContactHelper {
             }
         }
         emailCursor.close()
-        return Email(homeEmail,workEmail,otherEmail)
+        return LibararyEmail(homeEmail,workEmail,otherEmail)
     }
 
     @SuppressLint("Range")
-    private fun getAddressFromContact(contentResolver: ContentResolver, id: String): Address {
+    private fun getAddressFromContact(contentResolver: ContentResolver, id: String): LibraryContactAddress {
 
         var where = StructuredPostal.CONTACT_ID + " = " + id
         val addressCursor = contentResolver.query(
@@ -384,11 +384,11 @@ object ContactHelper {
             postCode = addressCursor.getString(addressCursor.getColumnIndex(StructuredPostal.POSTCODE)) ?: ""
         }
         addressCursor.close()
-        return Address(street, city, state, postCode, country)
+        return LibraryContactAddress(street, city, state, postCode, country)
     }
 
     @SuppressLint("Range")
-    private fun getWorkInfoFromContact(contentResolver: ContentResolver, id: String): WorkInfo {
+    private fun getWorkInfoFromContact(contentResolver: ContentResolver, id: String): LibraryContactWorkInfo {
         val workInfoCursor = contentResolver.query(
             ContactsContract.Data.CONTENT_URI,
             null,
@@ -402,10 +402,10 @@ object ContactHelper {
             companyName = workInfoCursor.getString(workInfoCursor.getColumnIndex(Organization.COMPANY)) ?: ""
             jobTitle = workInfoCursor.getString(workInfoCursor.getColumnIndex(Organization.TITLE)) ?: ""
         }
-        return WorkInfo(companyName, jobTitle)
+        return LibraryContactWorkInfo(companyName, jobTitle)
     }
 
-    fun getContactByPhoneNumber(ctx: Context, phoneNumber: String?): Contact? {
+    fun getContactByPhoneNumber(ctx: Context, phoneNumber: String?): LibraryContact? {
         var id: String? = null
         val contentResolver = ctx.contentResolver
         if (phoneNumber != null && phoneNumber.isNotEmpty()) {
@@ -428,13 +428,13 @@ object ContactHelper {
                     val address = getAddressFromContact(contentResolver, id)
                     val workInfo = getWorkInfoFromContact(contentResolver, id)
                     val profilePicture = getPictureFromContact(contentResolver, id)
-                    return Contact(
+                    return LibraryContact(
                         name = name,
                         phoneticName = phoneticName,
                         number = number,
                         email = email,
                         address = address,
-                        workInfo = workInfo,
+                        libraryContactWorkInfo = workInfo,
                         profilePicture = profilePicture
                     )
                 }

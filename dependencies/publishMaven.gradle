@@ -4,7 +4,7 @@ apply plugin: 'maven-publish'
 //githubProperties.load(new FileInputStream(rootProject.file("gradle.properties")))
 
 def _groupId = 'com.github.embraceitmobile'
-def _artifactId = rootProject.name
+def _artifactId = "contactsLibrary"
 def _version = rootProject.versionName
 //def _githubUser = githubProperties["gpr.usr"] ?: System.getenv("GPR_USER")
 //def _githubPassword = githubProperties["gpr.key"] ?: System.getenv("GPR_API_KEY")

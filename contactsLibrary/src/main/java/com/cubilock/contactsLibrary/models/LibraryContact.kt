@@ -1,16 +1,16 @@
 package com.cubilock.contactsLibrary.models
 
 
-data class Contact(
+data class LibraryContact(
     val id: String? = "",
-    val name: Name? = Name(),
-    val phoneticName: Name? = Name(),
-    val number: Number? = Number(),
-    val email: Email? = Email(),
-    val workInfo: WorkInfo? = WorkInfo(),
-    val profilePicture: ContactPicture? = null,
+    val name: LibraryName? = LibraryName(),
+    val phoneticName: LibraryName? = LibraryName(),
+    val number: LibraryNumber? = LibraryNumber(),
+    val email: LibararyEmail? = LibararyEmail(),
+    val libraryContactWorkInfo: LibraryContactWorkInfo? = LibraryContactWorkInfo(),
+    val profilePicture: LibraryContactPicture? = null,
     val notes: String? = null,
-    val address: Address? = Address(),
+    val address: LibraryContactAddress? = LibraryContactAddress(),
     val isFavorite: Boolean = false
 ) {
 
@@ -25,13 +25,13 @@ data class Contact(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Contact
+        other as LibraryContact
 
         if (name != other.name) return false
         if (phoneticName != other.phoneticName) return false
         if (number != other.number) return false
         if (email != other.email) return false
-        if (workInfo != other.workInfo) return false
+        if (libraryContactWorkInfo != other.libraryContactWorkInfo) return false
         if (profilePicture != other.profilePicture) return false
         if (notes != other.notes) return false
         if (address != other.address) return false

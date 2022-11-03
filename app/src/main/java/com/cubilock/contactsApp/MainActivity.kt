@@ -11,12 +11,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val name = Name("Muhammad", "Ali", "Haider")
-        val email = Email("ali@gmail.com", "ali@work.com", "ali@other.com")
-        val workInfo = WorkInfo("EmbraceIT", "Flutter Developer")
-        val number = Number("03348556301", "03348556300", "03348556302")
-        val address = Address("Main Street", "Mandra", "Punjab", "44000", "Pakistan")
-        val phoneticName = Name("Phonetic1", "Phonetic2", "phonetic3")
+        val name = LibraryName("Muhammad", "Ali", "Haider")
+        val email = LibararyEmail("ali@gmail.com", "ali@work.com", "ali@other.com")
+        val libraryContactWorkInfo = LibraryContactWorkInfo("EmbraceIT", "Flutter Developer")
+        val number = LibraryNumber("03348556301", "03348556300", "03348556302")
+        val address = LibraryContactAddress("Main Street", "Mandra", "Punjab", "44000", "Pakistan")
+        val phoneticName = LibraryName("Phonetic1", "Phonetic2", "phonetic3")
 
 //        val conf = Bitmap.Config.ARGB_8888; // see other conf types
 //        val bmp = Bitmap.createBitmap(100, 100, conf); // this creates a MUTABLE bitmap

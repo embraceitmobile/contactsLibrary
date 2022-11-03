@@ -1,6 +1,6 @@
 package com.cubilock.contactsLibrary.models
 
-data class Address(
+data class LibraryContactAddress(
     val street: String? = null,
     val city: String? = null,
     val state: String? = null,
