@@ -5,7 +5,7 @@ apply plugin: 'maven-publish'
 
 def _groupId = 'com.github.embraceitmobile'
 def _artifactId = "contactsLibrary"
-def _version = rootProject.versionName
+def _version = '1.0.1'
 //def _githubUser = githubProperties["gpr.usr"] ?: System.getenv("GPR_USER")
 //def _githubPassword = githubProperties["gpr.key"] ?: System.getenv("GPR_API_KEY")
 
@@ -18,12 +18,12 @@ publishing {
             artifact("$rootDir/$_artifactId/build/outputs/aar/$_artifactId-release.aar")
         }
 
-        debugAar(MavenPublication) {
-            groupId _groupId
-            artifactId "$_artifactId-debug"
-            version _version
-            artifact("$rootDir/$_artifactId/build/outputs/aar/$_artifactId-debug.aar")
-        }
+//        debugAar(MavenPublication) {
+//            groupId _groupId
+//            artifactId "$_artifactId-debug"
+//            version _version
+//            artifact("$rootDir/$_artifactId/build/outputs/aar/$_artifactId-debug.aar")
+//        }
     }
 
 //    repositories {
