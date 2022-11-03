@@ -14,7 +14,6 @@ import android.provider.ContactsContract.CommonDataKinds.*
 import android.provider.ContactsContract.PhoneLookup
 import android.util.Log
 import com.cubilock.contactsLibrary.models.*
-import com.cubilock.contactsLibrary.models.LibararyEmail
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -198,15 +197,20 @@ object ContactHelper {
             }
         }
 
+        ops.add(ContentProviderOperation.newUpdate(ContactsContract.RawContacts.CONTENT_URI)
+            .withValueBackReference(ContactsContract.Data._ID, 0)
+            .withValue(ContactsContract.Contacts.STARRED, if (contact.isFavorite) 1 else 0)
+            .build())
+
         // Asking the Contact provider to create a new contact
 
-        try {
+        return try {
             val results = context.contentResolver.applyBatch(ContactsContract.AUTHORITY, ops)
             Log.d("ContactHelper", "$results")
-            return true
+            true
         } catch (e: Exception) {
             e.printStackTrace()
-            return false
+            false
         }
     }
 
@@ -325,7 +329,7 @@ object ContactHelper {
     }
 
     @SuppressLint("Range")
-    private fun getEmailFromContact(contentResolver: ContentResolver, id: String): LibararyEmail {
+    private fun getEmailFromContact(contentResolver: ContentResolver, id: String): LibraryEmail {
         var homeEmail: String? = ""
         var workEmail: String? = ""
         var otherEmail: String? = ""
@@ -357,7 +361,7 @@ object ContactHelper {
             }
         }
         emailCursor.close()
-        return LibararyEmail(homeEmail,workEmail,otherEmail)
+        return LibraryEmail(homeEmail,workEmail,otherEmail)
     }
 
     @SuppressLint("Range")

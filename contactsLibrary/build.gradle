@@ -39,3 +39,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"
 }
+
+afterEvaluate {
+    generateReleaseBuildConfig.enabled = false
+}

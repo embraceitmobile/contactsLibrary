@@ -1,6 +1,6 @@
 package com.cubilock.contactsLibrary.builder
 
-import com.cubilock.contactsLibrary.models.LibararyEmail
+import com.cubilock.contactsLibrary.models.LibraryEmail
 import com.cubilock.contactsLibrary.models.LibraryName
 import com.cubilock.contactsLibrary.models.LibraryNumber
 import com.cubilock.contactsLibrary.models.LibraryContactWorkInfo
@@ -8,7 +8,7 @@ import com.cubilock.contactsLibrary.models.LibraryContactWorkInfo
 class ContactsBuilder(
     val name: LibraryName?,
     val number: LibraryNumber?,
-    val email: LibararyEmail?,
+    val email: LibraryEmail?,
     val libraryContactWorkInfo: LibraryContactWorkInfo?,
     val profilePicture: String?,
     val label: String?
@@ -32,7 +32,7 @@ class ContactsBuilder(
             private set
         var number: LibraryNumber? = null
             private set
-        var email: LibararyEmail? = null
+        var email: LibraryEmail? = null
             private set
         var libraryContactWorkInfo: LibraryContactWorkInfo? = null
             private set

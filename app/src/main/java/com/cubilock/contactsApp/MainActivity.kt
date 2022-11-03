@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val name = LibraryName("Muhammad", "Ali", "Haider")
-        val email = LibararyEmail("ali@gmail.com", "ali@work.com", "ali@other.com")
+        val email = LibraryEmail("ali@gmail.com", "ali@work.com", "ali@other.com")
         val libraryContactWorkInfo = LibraryContactWorkInfo("EmbraceIT", "Flutter Developer")
         val number = LibraryNumber("03348556301", "03348556300", "03348556302")
         val address = LibraryContactAddress("Main Street", "Mandra", "Punjab", "44000", "Pakistan")

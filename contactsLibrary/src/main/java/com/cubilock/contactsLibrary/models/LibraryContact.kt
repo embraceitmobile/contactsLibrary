@@ -6,7 +6,7 @@ data class LibraryContact(
     val name: LibraryName? = LibraryName(),
     val phoneticName: LibraryName? = LibraryName(),
     val number: LibraryNumber? = LibraryNumber(),
-    val email: LibararyEmail? = LibararyEmail(),
+    val email: LibraryEmail? = LibraryEmail(),
     val libraryContactWorkInfo: LibraryContactWorkInfo? = LibraryContactWorkInfo(),
     val profilePicture: LibraryContactPicture? = null,
     val notes: String? = null,
