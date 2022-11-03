@@ -197,10 +197,11 @@ object ContactHelper {
             }
         }
 
-        ops.add(ContentProviderOperation.newUpdate(ContactsContract.RawContacts.CONTENT_URI)
-            .withValueBackReference(ContactsContract.Data._ID, 0)
-            .withValue(ContactsContract.Contacts.STARRED, if (contact.isFavorite) 1 else 0)
-            .build())
+        //todo Need to update the for favorite contacts
+//        ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+//            .withValueBackReference(ContactsContract.Data._ID, 0)
+//            .withValue(ContactsContract.Contacts.STARRED, if (contact.isFavorite) 1 else 0)
+//            .build())
 
         // Asking the Contact provider to create a new contact
 
