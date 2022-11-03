@@ -15,7 +15,6 @@ import android.provider.ContactsContract.PhoneLookup
 import android.util.Log
 import com.cubilock.contactsLibrary.models.*
 import com.cubilock.contactsLibrary.models.Email
-import com.cubilock.contactsLibrary.models.Number
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -291,7 +290,7 @@ object ContactHelper {
     }
 
     @SuppressLint("Range")
-    private fun getNumberFromContact(contentResolver: ContentResolver, id: String): Number {
+    private fun getNumberFromContact(contentResolver: ContentResolver, id: String): com.cubilock.contactsLibrary.models.Number {
         var homeContact: String? = ""
         var workContact: String? = ""
         var otherContact: String? = ""
@@ -362,7 +361,7 @@ object ContactHelper {
     }
 
     @SuppressLint("Range")
-    private fun getAddressFromContact(contentResolver: ContentResolver, id: String): Address{
+    private fun getAddressFromContact(contentResolver: ContentResolver, id: String): Address {
 
         var where = StructuredPostal.CONTACT_ID + " = " + id
         val addressCursor = contentResolver.query(

@@ -10,7 +10,8 @@ data class Contact(
     val workInfo: WorkInfo? = WorkInfo(),
     val profilePicture: ContactPicture? = null,
     val notes: String? = null,
-    val address: Address? = Address()
+    val address: Address? = Address(),
+    val isFavorite: Boolean = false
 ) {
 
     override fun hashCode(): Int {
@@ -34,6 +35,7 @@ data class Contact(
         if (profilePicture != other.profilePicture) return false
         if (notes != other.notes) return false
         if (address != other.address) return false
+        if (isFavorite != other.isFavorite) return false
 
         return true
     }

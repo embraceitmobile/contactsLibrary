@@ -1,4 +1,4 @@
-package com.cubilock.contactsLibrary
+package com.cubilock.contactsApp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

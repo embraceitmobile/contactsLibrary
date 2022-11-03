@@ -1,7 +1,7 @@
 buildscript {
     ext {
         // Sdk and tools
-        applicationId = 'com.cubilock.contactsLibrary'
+        applicationId = 'com.cubilock.contactsApp'
         buildToolsVersion = '30.0.3'
         compileSdkVersion = 32
         minSdkVersion = 21
