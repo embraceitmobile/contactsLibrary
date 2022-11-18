@@ -1,10 +1,7 @@
 package com.cubilock.contactsLibrary.helpers
 
 import android.annotation.SuppressLint
-import android.content.ContentProviderOperation
-import android.content.ContentResolver
-import android.content.ContentUris
-import android.content.Context
+import android.content.*
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -21,7 +18,7 @@ import java.io.InputStream
 
 object ContactHelper {
 
-    fun addContact(context: Context, contact: LibraryContact): Boolean{
+    fun addContact(context: Context, contact: LibraryContact): Long?{
         val ops = ArrayList<ContentProviderOperation>()
 
         ops.add(ContentProviderOperation.newInsert(
@@ -207,11 +204,19 @@ object ContactHelper {
 
         return try {
             val results = context.contentResolver.applyBatch(ContactsContract.AUTHORITY, ops)
-            Log.d("ContactHelper", "$results")
-            true
+//            Log.d("ContactHelper", "$results")
+//            val results: Array<ContentProviderResult> =
+//                context.contentResolver.applyBatch(ContactsContract.AUTHORITY, ops)
+            val projection = arrayOf(ContactsContract.RawContacts.CONTACT_ID)
+            val cursor: Cursor? = context.contentResolver.query(results[0].uri!!, projection, null, null, null)
+            cursor?.moveToNext()
+            val contactId = cursor?.getLong(0)
+//            Log.d("SavedContactId", "$contactId")
+            cursor?.close()
+            contactId
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            null
         }
     }
 

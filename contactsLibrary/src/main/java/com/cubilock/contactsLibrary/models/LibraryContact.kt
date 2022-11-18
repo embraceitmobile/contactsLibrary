@@ -2,7 +2,7 @@ package com.cubilock.contactsLibrary.models
 
 
 data class LibraryContact(
-    val id: String? = "",
+    val id: Int = 0,
     val name: LibraryName? = LibraryName(),
     val phoneticName: LibraryName? = LibraryName(),
     val number: LibraryNumber? = LibraryNumber(),
