@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.RemoteException
 import android.provider.ContactsContract
 import android.provider.ContactsContract.CommonDataKinds.*
 import android.provider.ContactsContract.PhoneLookup
@@ -504,7 +505,7 @@ object ContactHelper {
     }
 
     @SuppressLint("Range")
-    fun deleteContactById(context: Context, id: String) {
+    fun deleteContactById(context: Context, id: String): Boolean {
         val cr = context.contentResolver
         val cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
             null, null, null, null)
@@ -516,7 +517,7 @@ object ContactHelper {
                             val lookupKey = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY))
                             val uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, lookupKey)
                             cr.delete(uri, null, null)
-                            break
+                            return true
                         }
 
                     } while (it.moveToNext())
@@ -528,6 +529,33 @@ object ContactHelper {
                 it.close()
             }
         }
+        return false
+    }
+
+    fun deleteContactUsingId(context: Context, id: String): Boolean{
+        val ops = ArrayList<ContentProviderOperation>()
+        val cr = context.contentResolver
+        ops.add(ContentProviderOperation
+            .newDelete(ContactsContract.RawContacts.CONTENT_URI)
+            .withSelection(
+                ContactsContract.RawContacts.CONTACT_ID
+                        + " = ?",
+                arrayOf(id))
+            .build())
+
+        try {
+            cr.applyBatch(ContactsContract.AUTHORITY, ops);
+            return true
+
+        } catch (e: RemoteException) {
+            e.printStackTrace()
+        } catch (e: OperationApplicationException) {
+            e.printStackTrace()
+        } finally {
+            ops.clear()
+        }
+
+        return false
     }
 
     fun contactExists(context: Context, name: String?): Boolean {

@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val idsList = mutableListOf<Long>()
         for(i in 0..5) {
             val name = LibraryName("Zubair$i", lastName = "Dar", displayName =  "Zubair$i Dar")
             val email = LibraryEmail("", "", "")
@@ -27,13 +28,16 @@ class MainActivity : AppCompatActivity() {
 //        val canvas =  Canvas(bmp)
 //        val contact = Contact(name, phoneticName, number, email, workInfo, ContactPicture(bmp), address = address)
             val result = ContactHelper.addContact(this, contact)
-            Log.e("MainActivity", "Result: $result")
+            if(result != null){
+                idsList.add(result)
+            }
+            Log.e("MainActivity", "Added contact Id: $result")
         }
 
         for(i in 2..3) {
 
-            val deleteResult = ContactHelper.deleteContactByName(this,"Zubair$i Rehman Dar")
-            Log.e("MainActivity", "Result: $deleteResult")
+            val deleteResult = ContactHelper.deleteContactUsingId(this,"${idsList.get(i)}")
+            Log.e("MainActivity", "Deleted Contact: $deleteResult with id ${idsList.get(i)}")
         }
 
 
