@@ -1,17 +1,18 @@
 package com.cubilock.contactsLibrary.models
 
 
-data class LibraryContact(
-    val id: Int = 0,
-    val name: LibraryName? = LibraryName(),
-    val phoneticName: LibraryName? = LibraryName(),
-    val number: LibraryNumber? = LibraryNumber(),
-    val email: LibraryEmail? = LibraryEmail(),
-    val libraryContactWorkInfo: LibraryContactWorkInfo? = LibraryContactWorkInfo(),
-    val profilePicture: LibraryContactPicture? = null,
-    val notes: String? = null,
-    val address: LibraryContactAddress? = LibraryContactAddress(),
-    val isFavorite: Boolean = false
+
+data class LibraryContact @JvmOverloads constructor(
+    var id: String = "0",
+    var name: LibraryName? = LibraryName(),
+    var phoneticName: LibraryName? = LibraryName(),
+    var number: LibraryNumber? = LibraryNumber(),
+    var email: LibraryEmail? = LibraryEmail(),
+    var libraryContactWorkInfo: LibraryContactWorkInfo? = LibraryContactWorkInfo(),
+    var profilePicture: LibraryContactPicture? = null,
+    var notes: String? = null,
+    var address: LibraryContactAddress? = LibraryContactAddress(),
+    var isFavorite: Boolean = false
 ) {
 
     override fun hashCode(): Int {

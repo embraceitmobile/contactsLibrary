@@ -1,6 +1,6 @@
 package com.cubilock.contactsLibrary.models
 
 data class LibraryContactWorkInfo(
-    val company: String? = null,
-    val jobTitle: String? = null
+    var company: String? = null,
+    var jobTitle: String? = null
 )

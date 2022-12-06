@@ -43,9 +43,9 @@ object ContactHelper {
                     ContactsContract.Data.CONTENT_URI)
                     .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
                     .withValue(ContactsContract.Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE)
-                    .withValue(StructuredName.GIVEN_NAME, contact.name.firstName)// contact.name?.displayName
-                    .withValue(StructuredName.MIDDLE_NAME, contact.name.middleName)// contact.name?.displayName
-                    .withValue(StructuredName.FAMILY_NAME, contact.name.lastName)
+                    .withValue(StructuredName.GIVEN_NAME, contact.name?.firstName)
+                    .withValue(StructuredName.MIDDLE_NAME, contact.name?.middleName)
+                    .withValue(StructuredName.FAMILY_NAME, contact.name?.lastName)
                     .build())
             }
         }
@@ -160,6 +160,16 @@ object ContactHelper {
                 .build())
         }
 
+        //------------------------------------------------------ Notes
+
+        contact.notes?.let {
+            ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValue(ContactsContract.Data.MIMETYPE, Note.CONTENT_ITEM_TYPE)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                .withValue(Note.NOTE, contact.notes)
+                .build())
+        }
+
         //------------------------------------------------------ Address
 
         contact.address?.let { address ->
@@ -180,7 +190,7 @@ object ContactHelper {
         contact.profilePicture?.let { profilePicture ->
             val stream = ByteArrayOutputStream()
             if(profilePicture.pictureBitmap != null) {
-                profilePicture.pictureBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                profilePicture.pictureBitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, stream)
                 ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                     .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
                     .withValue(ContactsContract.Data.IS_SUPER_PRIMARY, 1)
@@ -205,14 +215,11 @@ object ContactHelper {
 
         return try {
             val results = context.contentResolver.applyBatch(ContactsContract.AUTHORITY, ops)
-//            Log.d("ContactHelper", "$results")
-//            val results: Array<ContentProviderResult> =
-//                context.contentResolver.applyBatch(ContactsContract.AUTHORITY, ops)
             val projection = arrayOf(ContactsContract.RawContacts.CONTACT_ID)
             val cursor: Cursor? = context.contentResolver.query(results[0].uri!!, projection, null, null, null)
             cursor?.moveToNext()
             val contactId = cursor?.getLong(0)
-//            Log.d("SavedContactId", "$contactId")
+            Log.d("SavedContactId", "$contactId")
             cursor?.close()
             contactId
         } catch (e: Exception) {
@@ -221,14 +228,218 @@ object ContactHelper {
         }
     }
 
+    fun updateContact(context: Context, contact: LibraryContact): Boolean {
+        val ops: ArrayList<ContentProviderOperation> = ArrayList()
+        var op: ContentProviderOperation.Builder
+
+        // Drop all details about contact except name
+        op = ContentProviderOperation.newDelete(ContactsContract.Data.CONTENT_URI)
+            .withSelection(ContactsContract.Data.CONTACT_ID + "=? AND " + ContactsContract.Data.MIMETYPE + "=?",
+                arrayOf(java.lang.String.valueOf(contact.id),
+                    Organization.CONTENT_ITEM_TYPE))
+        ops.add(op.build())
+        op = ContentProviderOperation.newDelete(ContactsContract.Data.CONTENT_URI)
+            .withSelection(ContactsContract.Data.CONTACT_ID + "=? AND " + ContactsContract.Data.MIMETYPE + "=?",
+                arrayOf(java.lang.String.valueOf(contact.id), Phone.CONTENT_ITEM_TYPE))
+        ops.add(op.build())
+        op = ContentProviderOperation.newDelete(ContactsContract.Data.CONTENT_URI)
+            .withSelection(ContactsContract.Data.CONTACT_ID + "=? AND " + ContactsContract.Data.MIMETYPE + "=?",
+                arrayOf(java.lang.String.valueOf(contact.id), Email.CONTENT_ITEM_TYPE))
+        ops.add(op.build())
+        op = ContentProviderOperation.newDelete(ContactsContract.Data.CONTENT_URI)
+            .withSelection(ContactsContract.Data.CONTACT_ID + "=? AND " + ContactsContract.Data.MIMETYPE + "=?",
+                arrayOf(java.lang.String.valueOf(contact.id), Note.CONTENT_ITEM_TYPE))
+        ops.add(op.build())
+        op = ContentProviderOperation.newDelete(ContactsContract.Data.CONTENT_URI)
+            .withSelection(ContactsContract.Data.CONTACT_ID + "=? AND " + ContactsContract.Data.MIMETYPE + "=?",
+                arrayOf(java.lang.String.valueOf(contact.id),
+                    StructuredPostal.CONTENT_ITEM_TYPE))
+        ops.add(op.build())
+
+        //Photo
+        op = ContentProviderOperation.newDelete(ContactsContract.Data.CONTENT_URI)
+            .withSelection(ContactsContract.Data.CONTACT_ID + "=? AND " + ContactsContract.Data.MIMETYPE + "=?",
+                arrayOf(java.lang.String.valueOf(contact.id), Photo.CONTENT_ITEM_TYPE))
+        ops.add(op.build())
+
+        // Update data (name)
+        op = ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+            .withSelection(ContactsContract.Data.CONTACT_ID + "=? AND " + ContactsContract.Data.MIMETYPE + "=?",
+                arrayOf(java.lang.String.valueOf(contact.id),
+                    StructuredName.CONTENT_ITEM_TYPE))
+            .withValue(StructuredName.DISPLAY_NAME, contact.name?.displayName)
+            .withValue(StructuredName.GIVEN_NAME, contact.name?.firstName)
+            .withValue(StructuredName.MIDDLE_NAME, contact.name?.middleName)
+            .withValue(StructuredName.FAMILY_NAME, contact.name?.lastName)
+        ops.add(op.build())
+
+        // Insert data back into contact
+        op = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+            .withValue(ContactsContract.Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE)
+            .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+            .withValue(Organization.TYPE, Organization.TYPE_WORK)
+            .withValue(Organization.COMPANY, contact.libraryContactWorkInfo?.company)
+            .withValue(Organization.TITLE, contact.libraryContactWorkInfo?.jobTitle)
+        ops.add(op.build())
+        op = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+            .withValue(ContactsContract.Data.MIMETYPE, Note.CONTENT_ITEM_TYPE)
+            .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+            .withValue(Note.NOTE, contact.notes)
+        ops.add(op.build())
+
+        //Photo
+        val stream = ByteArrayOutputStream()
+        if(contact.profilePicture?.pictureBitmap != null) {
+            contact.profilePicture!!.pictureBitmap!!.compress(Bitmap.CompressFormat.JPEG, 80, stream)
+            op = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                .withValue(ContactsContract.Data.IS_SUPER_PRIMARY, 1)
+                .withValue(Photo.PHOTO, stream.toByteArray())
+                .withValue(ContactsContract.Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
+            ops.add(op.build())
+        }
+
+        op = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+            .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+            .withValue(ContactsContract.Data.IS_SUPER_PRIMARY, 1)
+            .withValue(Photo.PHOTO, contact.profilePicture?.pictureBitmap)
+            .withValue(ContactsContract.Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
+        ops.add(op.build())
+
+        contact.number?.let {
+            if(!it.home.isNullOrBlank()) {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
+                    .withValue(Phone.NUMBER, it.home)
+                    .withValue(Phone.TYPE,
+                        Phone.TYPE_MOBILE)
+                    .build())
+            }
+            if(!it.work.isNullOrEmpty()) {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
+                    .withValue(Phone.NUMBER, it.work)
+                    .withValue(Phone.TYPE, Phone.TYPE_WORK)
+                    .build())
+            }
+
+            if(!it.other.isNullOrEmpty()) {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
+                    .withValue(Phone.NUMBER, it.other)
+                    .withValue(Phone.TYPE,Phone.TYPE_OTHER)
+                    .build())
+            }
+        }
+
+        contact.email?.let {
+            if(!it.home.isNullOrBlank()) {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
+                    .withValue(Email.DATA, it.home)
+                    .withValue(Email.TYPE,Email.TYPE_HOME)
+                    .build())
+            }
+            if(!it.work.isNullOrBlank()) {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
+                    .withValue(Email.DATA, it.work)
+                    .withValue(Email.TYPE,Email.TYPE_WORK)
+                    .build())
+            }
+            if(!it.other.isNullOrBlank()) {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
+                    .withValue(Email.DATA, it.other)
+                    .withValue(Email.TYPE,Email.TYPE_OTHER)
+                    .build())
+            }
+        }
+
+        contact.address?.let { address ->
+            ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                    StructuredPostal.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                .withValue(StructuredPostal.CITY, address.city)
+                .withValue(StructuredPostal.STREET, address.street)
+                .withValue(StructuredPostal.POSTCODE, address.postcode)
+                .withValue(StructuredPostal.REGION, address.state)
+                .withValue(StructuredPostal.COUNTRY, address.country)
+                .build())
+        }
+        return try {
+            context.contentResolver.applyBatch(ContactsContract.AUTHORITY, ops)
+            true
+        } catch (e: java.lang.Exception) {
+            // Log exception
+            Log.e("TAG", "Exception encountered while updating contact: ")
+            e.printStackTrace()
+            false
+        }
+    }
+
+    fun getPictureForContact(ctx: Context, id: String): LibraryContactPicture {
+        val contentResolver = ctx.contentResolver
+        return getPictureFromContact(contentResolver, id)
+    }
 
     @SuppressLint("Range")
-    fun getContacts(ctx: Context): List<LibraryContact>? {
+    fun getContactById(ctx: Context, id: String, loadPicture: Boolean = false): LibraryContact? {
+        val selection: String = ContactsContract.Contacts._ID + " = ? "
+        val selectionArgs = arrayOf(id)
+        var libraryContact : LibraryContact? = null
+        val contentResolver = ctx.contentResolver
+        val cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, selection, selectionArgs, null)
+        if(cursor != null && cursor.count > 0) {
+            cursor.moveToFirst()
+            while (cursor != null && !cursor.isAfterLast) {
+                if (cursor.getColumnIndex(ContactsContract.Contacts._ID) >= 0) {
+                    if (id == cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))) {
+                        val name  = getNameFromContact(cursor, ContactsContract.Contacts.DISPLAY_NAME)
+                        val phoneticName  = getNameFromContact(cursor, ContactsContract.Contacts.PHONETIC_NAME)
+                        val number = getNumberFromContact(contentResolver, id)
+                        val email = getEmailFromContact(contentResolver, id)
+                        val address = getAddressFromContact(contentResolver, id)
+                        val workInfo = getWorkInfoFromContact(contentResolver, id)
+                        val profilePicture = if(loadPicture) {
+                            getPictureFromContact(contentResolver, id)
+                        } else {
+                            LibraryContactPicture()
+                        }
+                        libraryContact = LibraryContact(
+                            id = id,
+                            name = name,
+                            phoneticName = phoneticName,
+                            number = number,
+                            email = email,
+                            address = address,
+                            libraryContactWorkInfo = workInfo,
+                            profilePicture = profilePicture
+                        )
+                        break
+                    }
+                }
+            }
+        }
+        cursor?.close()
+        return libraryContact
+    }
+
+
+    @SuppressLint("Range")
+    fun getContacts(ctx: Context, loadPicture: Boolean = false): List<LibraryContact>? {
         val list: MutableList<LibraryContact> = ArrayList()
         val contentResolver = ctx.contentResolver
         val cursor =
             contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
-        if (cursor!!.count > 0) {
+        if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
                 if (cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
@@ -240,8 +451,13 @@ object ContactHelper {
                     val email = getEmailFromContact(contentResolver, id)
                     val address = getAddressFromContact(contentResolver, id)
                     val workInfo = getWorkInfoFromContact(contentResolver, id)
-                    val profilePicture = getPictureFromContact(contentResolver, id)
+                    val profilePicture = if(loadPicture) {
+                        getPictureFromContact(contentResolver, id)
+                    } else {
+                        LibraryContactPicture()
+                    }
                     val contact = LibraryContact(
+                        id = id,
                         name = name,
                         phoneticName = phoneticName,
                         number = number,
