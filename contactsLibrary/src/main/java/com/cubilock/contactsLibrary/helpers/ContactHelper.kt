@@ -82,7 +82,7 @@ object ContactHelper {
                         Phone.CONTENT_ITEM_TYPE)
                     .withValue(Phone.NUMBER, it.home)
                     .withValue(Phone.TYPE,
-                        Phone.TYPE_MOBILE)
+                        Phone.TYPE_HOME)
                     .build())
             }
             if(!it.work.isNullOrEmpty()) {

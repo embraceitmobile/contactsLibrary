@@ -5,7 +5,7 @@ apply plugin: 'maven-publish'
 
 def _groupId = 'com.github.embraceitmobile'
 def _artifactId = "contactsLibrary"
-def _version = '1.0.5'
+def _version = '1.0.6'
 //def _githubUser = githubProperties["gpr.usr"] ?: System.getenv("GPR_USER")
 //def _githubPassword = githubProperties["gpr.key"] ?: System.getenv("GPR_API_KEY")
 
