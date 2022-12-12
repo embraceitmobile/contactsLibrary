@@ -1,5 +1,6 @@
 package com.cubilock.contactsLibrary.helpers
 
+import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.content.*
 import android.database.Cursor
@@ -11,6 +12,10 @@ import android.provider.ContactsContract
 import android.provider.ContactsContract.CommonDataKinds.*
 import android.provider.ContactsContract.PhoneLookup
 import android.util.Log
+import com.cubilock.contactsLibrary.mapper.toEmailCategoryType
+import com.cubilock.contactsLibrary.mapper.toEmailType
+import com.cubilock.contactsLibrary.mapper.toPhoneCategoryType
+import com.cubilock.contactsLibrary.mapper.toPhoneType
 import com.cubilock.contactsLibrary.models.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -19,6 +24,7 @@ import java.io.InputStream
 
 object ContactHelper {
 
+    @SuppressLint("MissingPermission")
     fun addContact(context: Context, contact: LibraryContact): Long?{
         val ops = ArrayList<ContentProviderOperation>()
 
@@ -74,73 +80,91 @@ object ContactHelper {
 
         //------------------------------------------------------ Mobile Number
 
-        contact.number?.let {
-            if(!it.home.isNullOrBlank()) {
+        contact.numbers.let {
+            contact.numbers.forEach{item ->
                 ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                     .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
                     .withValue(ContactsContract.Data.MIMETYPE,
                         Phone.CONTENT_ITEM_TYPE)
-                    .withValue(Phone.NUMBER, it.home)
-                    .withValue(Phone.TYPE,
-                        Phone.TYPE_HOME)
+                    .withValue(Phone.NUMBER, item.number ?: "")
+                    .withValue(Phone.TYPE, item.category?.toPhoneType() ?: Phone.TYPE_MOBILE)
                     .build())
             }
-            if(!it.work.isNullOrEmpty()) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                    .withValue(ContactsContract.Data.MIMETYPE,
-                        Phone.CONTENT_ITEM_TYPE)
-                    .withValue(Phone.NUMBER, it.work)
-                    .withValue(Phone.TYPE,
-                        Phone.TYPE_WORK)
-                    .build())
-            }
-
-            if(!it.other.isNullOrEmpty()) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                    .withValue(ContactsContract.Data.MIMETYPE,
-                        Phone.CONTENT_ITEM_TYPE)
-                    .withValue(Phone.NUMBER, it.other)
-                    .withValue(Phone.TYPE,
-                        Phone.TYPE_OTHER)
-                    .build())
-            }
+//            if(!it.home.isNullOrBlank()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                        Phone.CONTENT_ITEM_TYPE)
+//                    .withValue(Phone.NUMBER, it.home)
+//                    .withValue(Phone.TYPE,
+//                        Phone.TYPE_HOME)
+//                    .build())
+//            }
+//            if(!it.work.isNullOrEmpty()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                        Phone.CONTENT_ITEM_TYPE)
+//                    .withValue(Phone.NUMBER, it.work)
+//                    .withValue(Phone.TYPE,
+//                        Phone.TYPE_WORK)
+//                    .build())
+//            }
+//
+//            if(!it.other.isNullOrEmpty()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                        Phone.CONTENT_ITEM_TYPE)
+//                    .withValue(Phone.NUMBER, it.other)
+//                    .withValue(Phone.TYPE,
+//                        Phone.TYPE_OTHER)
+//                    .build())
+//            }
         }
 
 
         //------------------------------------------------------ Email
-        contact.email?.let {
-            if(!it.home.isNullOrBlank()) {
+        contact.emails?.let {
+            contact.emails.forEach{item ->
                 ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                     .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
                     .withValue(ContactsContract.Data.MIMETYPE,
-                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
-                    .withValue(ContactsContract.CommonDataKinds.Email.DATA, it.home)
-                    .withValue(ContactsContract.CommonDataKinds.Email.TYPE,
-                        ContactsContract.CommonDataKinds.Email.TYPE_HOME)
+                        Email.CONTENT_ITEM_TYPE)
+                    .withValue(Email.DATA, item.email ?: "")
+                    .withValue(Email.TYPE, item.category?.toEmailType() ?: Email.TYPE_MOBILE)
                     .build())
             }
-            if(!it.work.isNullOrBlank()) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                    .withValue(ContactsContract.Data.MIMETYPE,
-                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
-                    .withValue(ContactsContract.CommonDataKinds.Email.DATA, it.work)
-                    .withValue(ContactsContract.CommonDataKinds.Email.TYPE,
-                        ContactsContract.CommonDataKinds.Email.TYPE_WORK)
-                    .build())
-            }
-            if(!it.other.isNullOrBlank()) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                    .withValue(ContactsContract.Data.MIMETYPE,
-                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
-                    .withValue(ContactsContract.CommonDataKinds.Email.DATA, it.other)
-                    .withValue(ContactsContract.CommonDataKinds.Email.TYPE,
-                        ContactsContract.CommonDataKinds.Email.TYPE_OTHER)
-                    .build())
-            }
+//            if(!it.home.isNullOrBlank()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                        Email.CONTENT_ITEM_TYPE)
+//                    .withValue(Email.DATA, it.home)
+//                    .withValue(Email.TYPE,
+//                        Email.TYPE_HOME)
+//                    .build())
+//            }
+//            if(!it.work.isNullOrBlank()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                        Email.CONTENT_ITEM_TYPE)
+//                    .withValue(Email.DATA, it.work)
+//                    .withValue(Email.TYPE,
+//                        Email.TYPE_WORK)
+//                    .build())
+//            }
+//            if(!it.other.isNullOrBlank()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                        Email.CONTENT_ITEM_TYPE)
+//                    .withValue(Email.DATA, it.other)
+//                    .withValue(Email.TYPE,
+//                        Email.TYPE_OTHER)
+//                    .build())
+//            }
         }
 
 
@@ -168,6 +192,21 @@ object ContactHelper {
                 .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
                 .withValue(Note.NOTE, contact.notes)
                 .build())
+        }
+
+        //------------------------------------------------------ Label
+
+        contact.label?.let {
+            val accounts = AccountManager.get(context).accounts
+            accounts.forEach {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Groups.CONTENT_URI)
+                    .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.Groups.CONTENT_ITEM_TYPE)
+                    .withValue(ContactsContract.Groups.TITLE, it)
+                    .withValue(ContactsContract.Groups.ACCOUNT_NAME, it.name)
+                    .withValue(ContactsContract.Groups.ACCOUNT_TYPE, it.type)
+                    .build()
+                )
+            }
         }
 
         //------------------------------------------------------ Address
@@ -306,60 +345,78 @@ object ContactHelper {
             .withValue(ContactsContract.Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
         ops.add(op.build())
 
-        contact.number?.let {
-            if(!it.home.isNullOrBlank()) {
+        contact.numbers?.let {
+            contact.numbers.forEach{item ->
                 ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
-                    .withValue(Phone.NUMBER, it.home)
-                    .withValue(Phone.TYPE,
-                        Phone.TYPE_MOBILE)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                        Phone.CONTENT_ITEM_TYPE)
+                    .withValue(Phone.NUMBER, item.number ?: "")
+                    .withValue(Phone.TYPE, item.category?.toPhoneType() ?: Phone.TYPE_MOBILE)
                     .build())
             }
-            if(!it.work.isNullOrEmpty()) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
-                    .withValue(Phone.NUMBER, it.work)
-                    .withValue(Phone.TYPE, Phone.TYPE_WORK)
-                    .build())
-            }
-
-            if(!it.other.isNullOrEmpty()) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
-                    .withValue(Phone.NUMBER, it.other)
-                    .withValue(Phone.TYPE,Phone.TYPE_OTHER)
-                    .build())
-            }
+//            if(!it.home.isNullOrBlank()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+//                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
+//                    .withValue(Phone.NUMBER, it.home)
+//                    .withValue(Phone.TYPE,
+//                        Phone.TYPE_HOME)
+//                    .build())
+//            }
+//            if(!it.work.isNullOrEmpty()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+//                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
+//                    .withValue(Phone.NUMBER, it.work)
+//                    .withValue(Phone.TYPE, Phone.TYPE_WORK)
+//                    .build())
+//            }
+//
+//            if(!it.other.isNullOrEmpty()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+//                    .withValue(ContactsContract.Data.MIMETYPE,Phone.CONTENT_ITEM_TYPE)
+//                    .withValue(Phone.NUMBER, it.other)
+//                    .withValue(Phone.TYPE,Phone.TYPE_OTHER)
+//                    .build())
+//            }
         }
 
-        contact.email?.let {
-            if(!it.home.isNullOrBlank()) {
+        contact.emails?.let {
+            contact.emails.forEach{item ->
                 ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
-                    .withValue(Email.DATA, it.home)
-                    .withValue(Email.TYPE,Email.TYPE_HOME)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                        Email.CONTENT_ITEM_TYPE)
+                    .withValue(Email.DATA, item.email ?: "")
+                    .withValue(Email.TYPE, item.category?.toEmailType() ?: Email.TYPE_MOBILE)
                     .build())
             }
-            if(!it.work.isNullOrBlank()) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
-                    .withValue(Email.DATA, it.work)
-                    .withValue(Email.TYPE,Email.TYPE_WORK)
-                    .build())
-            }
-            if(!it.other.isNullOrBlank()) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
-                    .withValue(Email.DATA, it.other)
-                    .withValue(Email.TYPE,Email.TYPE_OTHER)
-                    .build())
-            }
+//            if(!it.home.isNullOrBlank()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+//                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
+//                    .withValue(Email.DATA, it.home)
+//                    .withValue(Email.TYPE,Email.TYPE_HOME)
+//                    .build())
+//            }
+//            if(!it.work.isNullOrBlank()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+//                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
+//                    .withValue(Email.DATA, it.work)
+//                    .withValue(Email.TYPE,Email.TYPE_WORK)
+//                    .build())
+//            }
+//            if(!it.other.isNullOrBlank()) {
+//                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+//                    .withValue(ContactsContract.Data.MIMETYPE,Email.CONTENT_ITEM_TYPE)
+//                    .withValue(Email.DATA, it.other)
+//                    .withValue(Email.TYPE,Email.TYPE_OTHER)
+//                    .build())
+//            }
         }
 
         contact.address?.let { address ->
@@ -417,8 +474,8 @@ object ContactHelper {
                             id = id,
                             name = name,
                             phoneticName = phoneticName,
-                            number = number,
-                            email = email,
+                            numbers = number,
+                            emails = email,
                             address = address,
                             libraryContactWorkInfo = workInfo,
                             profilePicture = profilePicture
@@ -447,8 +504,8 @@ object ContactHelper {
 //                    Log.e("name", "$name")
                     val phoneticName  = getNameFromContact(cursor, ContactsContract.Contacts.PHONETIC_NAME)
 //                    Log.e("phoneticName", "$phoneticName")
-                    val number = getNumberFromContact(contentResolver, id)
-                    val email = getEmailFromContact(contentResolver, id)
+                    val numbers = getNumberFromContact(contentResolver, id)
+                    val emails = getEmailFromContact(contentResolver, id)
                     val address = getAddressFromContact(contentResolver, id)
                     val workInfo = getWorkInfoFromContact(contentResolver, id)
                     val profilePicture = if(loadPicture) {
@@ -460,8 +517,8 @@ object ContactHelper {
                         id = id,
                         name = name,
                         phoneticName = phoneticName,
-                        number = number,
-                        email = email,
+                        numbers = numbers,
+                        emails = emails,
                         address = address,
                         libraryContactWorkInfo = workInfo,
                         profilePicture = profilePicture
@@ -517,10 +574,11 @@ object ContactHelper {
     }
 
     @SuppressLint("Range")
-    private fun getNumberFromContact(contentResolver: ContentResolver, id: String): com.cubilock.contactsLibrary.models.LibraryNumber {
+    private fun getNumberFromContact(contentResolver: ContentResolver, id: String): List<LibraryNumber> {
         var homeContact: String? = ""
         var workContact: String? = ""
         var otherContact: String? = ""
+        var numbers = mutableListOf<LibraryNumber>()
 
         val cursorInfo =
             contentResolver.query(Phone.CONTENT_URI,
@@ -531,60 +589,75 @@ object ContactHelper {
 
         while (cursorInfo!!.moveToNext()) {
             val phoneNumber = cursorInfo.getString(cursorInfo.getColumnIndex(Phone.NUMBER))
-            try {
-                when (cursorInfo.getInt(cursorInfo.getColumnIndex(Phone.TYPE))) {
-                    Phone.TYPE_MOBILE -> {
-                        homeContact = phoneNumber
-                    }
-                    Phone.TYPE_WORK -> {
-                        workContact = phoneNumber
-                    }
-                    Phone.TYPE_OTHER -> {
-                        otherContact = phoneNumber
-                    }
-                }
-            } catch (ex:Exception){
-                homeContact = phoneNumber
-            }
+            val phoneType = cursorInfo.getInt(cursorInfo.getColumnIndex(Phone.TYPE))
+            val categoryType = phoneType.toPhoneCategoryType()
+//            try {
+
+//                when (cursorInfo.getInt(cursorInfo.getColumnIndex(Phone.TYPE))) {
+//                    Phone.TYPE_HOME -> {
+//                        homeContact = phoneNumber
+//                    }
+//                    Phone.TYPE_WORK -> {
+//                        workContact = phoneNumber
+//                    }
+//                    Phone.TYPE_OTHER -> {
+//                        otherContact = phoneNumber
+//                    }
+//                    Phone.TYPE_MOBILE -> {
+//                        otherContact = phoneNumber
+//                    }
+//                }
+//            } catch (ex:Exception){
+//                homeContact = phoneNumber
+//            }
+            val libraryNumber = LibraryNumber(phoneNumber, categoryType.value)
+            if(!numbers.contains(libraryNumber))
+                numbers.add(libraryNumber)
         }
         cursorInfo.close()
-        return LibraryNumber(homeContact, workContact, otherContact)
+        return numbers
     }
 
     @SuppressLint("Range")
-    private fun getEmailFromContact(contentResolver: ContentResolver, id: String): LibraryEmail {
+    private fun getEmailFromContact(contentResolver: ContentResolver, id: String): List<LibraryEmail> {
         var homeEmail: String? = ""
         var workEmail: String? = ""
         var otherEmail: String? = ""
+        var emails = mutableListOf<LibraryEmail>()
 
         val emailCursor =
-            contentResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+            contentResolver.query(Email.CONTENT_URI,
                 null,
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                Email.CONTACT_ID + " = ?",
                 arrayOf(id),
                 null)
 
         while (emailCursor!!.moveToNext()) {
-            var emailAddress = emailCursor.getString(emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
+            var emailAddress = emailCursor.getString(emailCursor.getColumnIndex(Email.DATA))
+            val emailType = emailCursor.getInt(emailCursor.getColumnIndex(Email.TYPE))
+            val categoryType = emailType.toEmailCategoryType()
 //            Log.e("getEmailFromContact", "$emailAddress")
-            try {
-                when (emailCursor.getInt(emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE))) {
-                    Phone.TYPE_MOBILE -> {
-                        homeEmail = emailAddress
-                    }
-                    Phone.TYPE_WORK -> {
-                        workEmail = emailAddress
-                    }
-                    Phone.TYPE_OTHER -> {
-                        otherEmail = emailAddress
-                    }
-                }
-            } catch (ex:Exception){
-                homeEmail = emailAddress
-            }
+//            try {
+//                when (emailCursor.getInt(emailCursor.getColumnIndex(Email.TYPE))) {
+//                    Phone.TYPE_MOBILE -> {
+//                        homeEmail = emailAddress
+//                    }
+//                    Phone.TYPE_WORK -> {
+//                        workEmail = emailAddress
+//                    }
+//                    Phone.TYPE_OTHER -> {
+//                        otherEmail = emailAddress
+//                    }
+//                }
+//            } catch (ex:Exception){
+//                homeEmail = emailAddress
+//            }
+            val libraryEmail = LibraryEmail(emailAddress,categoryType.value)
+            if(!emails.contains(libraryEmail))
+                emails.add(libraryEmail)
         }
         emailCursor.close()
-        return LibraryEmail(homeEmail,workEmail,otherEmail)
+        return emails
     }
 
     @SuppressLint("Range")
@@ -650,16 +723,16 @@ object ContactHelper {
                     val name = getNameFromContact(cursor, ContactsContract.Contacts.DISPLAY_NAME)
                     val phoneticName =
                         getNameFromContact(cursor, ContactsContract.Contacts.PHONETIC_NAME)
-                    val number = getNumberFromContact(contentResolver, id)
-                    val email = getEmailFromContact(contentResolver, id)
+                    val numbers = getNumberFromContact(contentResolver, id)
+                    val emails = getEmailFromContact(contentResolver, id)
                     val address = getAddressFromContact(contentResolver, id)
                     val workInfo = getWorkInfoFromContact(contentResolver, id)
                     val profilePicture = getPictureFromContact(contentResolver, id)
                     return LibraryContact(
                         name = name,
                         phoneticName = phoneticName,
-                        number = number,
-                        email = email,
+                        numbers = numbers,
+                        emails = emails,
                         address = address,
                         libraryContactWorkInfo = workInfo,
                         profilePicture = profilePicture

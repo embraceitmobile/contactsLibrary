@@ -25,13 +25,27 @@ class MainActivity : AppCompatActivity() {
 
         /*checking contacts saving region*/
 //        val idsList = mutableListOf<Long>()
-        for(i in 0..0) {
+        val homeNumber = LibraryNumber("03262233433", CategoryType.HOME.value)
+        val mobileNumber = LibraryNumber("03457693743", CategoryType.MOBILE.value)
+        val workNumber = LibraryNumber("034937402232", CategoryType.WORK.value)
+        val otherNumber = LibraryNumber("0323430243", CategoryType.OTHER.value)
+        val numbers = listOf(workNumber, mobileNumber, otherNumber, homeNumber)
+
+        val homeEmail = LibraryEmail("zee@zee.zee", CategoryType.HOME.value)
+        val mobileEmail = LibraryEmail("zeed@zeed.zeed", CategoryType.MOBILE.value)
+        val workEmail = LibraryEmail("zeef@zeef.zeef", CategoryType.WORK.value)
+        val otherEmail = LibraryEmail("zeeg@zeeg.zeeg", CategoryType.OTHER.value)
+        val emails = listOf(workEmail, mobileEmail, otherEmail, homeEmail)
+
+//
+//        for(i in 0..0) {
             val name = LibraryName("Asad", middleName = "Bhai",)
-            val email = LibraryEmail("", "", "")
+//            val email = LibraryEmail("", CategoryType.MOBILE.value,)
             val libraryContactWorkInfo = LibraryContactWorkInfo("EmbraceIT", "Flutter Developer")
-            val number = LibraryNumber("", "033333333", "")
+//            val number = LibraryNumber("033333333", CategoryType.MOBILE.value)
             val address = LibraryContactAddress("234", "city", "state", "postcode", "country")
-            val contact  = LibraryContact(name = name, email = email, libraryContactWorkInfo = libraryContactWorkInfo, number = number,  address = address, isFavorite = false)
+            val contact  = LibraryContact(name = name, emails = emails, libraryContactWorkInfo = libraryContactWorkInfo, numbers = numbers,  address = address, isFavorite = false, notes = "sheep")
+            ContactHelper.addContact(this, contact)
 
 
 //        val conf = Bitmap.Config.ARGB_8888; // see other conf types
@@ -43,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 //                idsList.add(result)
 //            }
 //            Log.e("MainActivity", "Added contact Id: $result")
-        }
+//        }
 
 
         /* checking the delete contact region */
@@ -61,11 +75,11 @@ class MainActivity : AppCompatActivity() {
         /* Getting contact list region */
 //        Log.e("MainActivity", "before Loading")
 //        val list = ContactHelper.getContacts(this)
-//        Log.e("MainActivity", "After loading list: ${list?.size}")
+//        Log.e("MainActivity", "After loading list: ${list}")
 
         /* Getting single contact region*/
 //        Log.e("MainActivity", "Before getting Single Contact")
-//        val result = ContactHelper.getContactById(this, "14")
+//        val result = ContactHelper.getContactById(this, "22")
 //        Log.e("MainActivity", "Single Contact: $result")
 
         /* Getting picture of contact region*/
@@ -73,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 //        Log.e("MainActivity", "Single Contact: $result")
 
 
-        callLogs()
+//        callLogs()
     }
 
 
