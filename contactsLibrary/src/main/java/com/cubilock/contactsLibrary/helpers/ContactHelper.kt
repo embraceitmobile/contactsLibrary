@@ -548,6 +548,42 @@ object ContactHelper {
     }
 
     @SuppressLint("Range")
+    fun getContactsLight(context: Context): List<LibraryContact> {
+        val list = ArrayList<LibraryContact>()
+        val contentResolver = context.contentResolver
+        val fieldListProjection = arrayOf(
+            Phone.CONTACT_ID,
+            Phone.DISPLAY_NAME_PRIMARY,
+            Phone.NUMBER,
+            Phone.NORMALIZED_NUMBER,
+            ContactsContract.Contacts.PHOTO_URI, ContactsContract.Contacts.STARRED
+        )
+        val sort = Phone.DISPLAY_NAME_PRIMARY + " ASC"
+        val cursor = contentResolver
+            .query(Phone.CONTENT_URI, fieldListProjection, null, null, sort)
+        val normalizedNumbersAlreadyFound: HashSet<String> = HashSet()
+        if (cursor != null && cursor.count > 0) {
+            while (cursor.moveToNext()) {
+                val normalizedNumber = cursor.getString(cursor.getColumnIndex(Phone.DISPLAY_NAME))
+                if (normalizedNumbersAlreadyFound.add(normalizedNumber)) {
+                    val id = cursor.getInt(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                    val name = getNameFromContact(cursor, ContactsContract.Contacts.DISPLAY_NAME)
+                    val phoneNumber = cursor.getString(cursor.getColumnIndex(Phone.NUMBER))
+                    val uri = cursor.getString(cursor.getColumnIndex(Phone.PHOTO_URI))
+                    if (uri != null) {
+                        val profilePicture = LibraryContactPicture(uri = uri)
+                        list.add(LibraryContact("$id", profilePicture = profilePicture, name = name, numbers = listOf(LibraryNumber(phoneNumber, CategoryType.MOBILE.value))))
+                    } else {
+                        list.add(LibraryContact("$id", name = name, numbers= listOf(LibraryNumber(phoneNumber, CategoryType.MOBILE.value))))
+                    }
+                }
+            }
+            cursor.close()
+        }
+        return list
+    }
+
+    @SuppressLint("Range")
     private fun getNameFromContact(cursor: Cursor, nameType: String): LibraryName {
         val name = cursor.getString(cursor.getColumnIndex(
             nameType))

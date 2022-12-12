@@ -39,13 +39,13 @@ class MainActivity : AppCompatActivity() {
 
 //
 //        for(i in 0..0) {
-            val name = LibraryName("Asad", middleName = "Bhai",)
-//            val email = LibraryEmail("", CategoryType.MOBILE.value,)
-            val libraryContactWorkInfo = LibraryContactWorkInfo("EmbraceIT", "Flutter Developer")
-//            val number = LibraryNumber("033333333", CategoryType.MOBILE.value)
-            val address = LibraryContactAddress("234", "city", "state", "postcode", "country")
-            val contact  = LibraryContact(name = name, emails = emails, libraryContactWorkInfo = libraryContactWorkInfo, numbers = numbers,  address = address, isFavorite = false, notes = "sheep")
-            ContactHelper.addContact(this, contact)
+//            val name = LibraryName("Asad", middleName = "Bhai",)
+////            val email = LibraryEmail("", CategoryType.MOBILE.value,)
+//            val libraryContactWorkInfo = LibraryContactWorkInfo("EmbraceIT", "Flutter Developer")
+////            val number = LibraryNumber("033333333", CategoryType.MOBILE.value)
+//            val address = LibraryContactAddress("234", "city", "state", "postcode", "country")
+//            val contact  = LibraryContact(name = name, emails = emails, libraryContactWorkInfo = libraryContactWorkInfo, numbers = numbers,  address = address, isFavorite = false, notes = "sheep")
+//            ContactHelper.addContact(this, contact)
 
 
 //        val conf = Bitmap.Config.ARGB_8888; // see other conf types
@@ -73,9 +73,9 @@ class MainActivity : AppCompatActivity() {
 //        Log.e("MainActivity","contactExists: $contactExist")
 
         /* Getting contact list region */
-//        Log.e("MainActivity", "before Loading")
-//        val list = ContactHelper.getContacts(this)
-//        Log.e("MainActivity", "After loading list: ${list}")
+        Log.e("MainActivity", "before Loading")
+        val list = ContactHelper.getContactsLight(this)
+        Log.e("MainActivity", "After loading list: ${list.size}")
 
         /* Getting single contact region*/
 //        Log.e("MainActivity", "Before getting Single Contact")
