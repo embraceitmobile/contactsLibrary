@@ -15,7 +15,6 @@ data class LibraryContact @JvmOverloads constructor(
     var address: LibraryContactAddress? = LibraryContactAddress(),
     var isFavorite: Boolean = false
 ) {
-
     override fun hashCode(): Int {
         var result = id.hashCode() ?: 0
         result = 31 * result + (name?.hashCode() ?: 0)
