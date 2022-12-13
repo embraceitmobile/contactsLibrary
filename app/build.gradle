@@ -40,5 +40,5 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$testExtJunit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoCoreVersion"
-    implementation project(path: ':contactsLibrary')
+    implementation(project(":contactsLibrary"))
 }
