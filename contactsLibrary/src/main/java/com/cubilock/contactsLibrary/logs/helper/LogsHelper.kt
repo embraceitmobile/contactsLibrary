@@ -1,13 +1,19 @@
 package com.cubilock.contactsLibrary.logs.helper
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.provider.CallLog
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.cubilock.contactsLibrary.extensions.ensureBackgroundThread
+import com.cubilock.contactsLibrary.extensions.getQuestionMarks
+import com.cubilock.contactsLibrary.extensions.times
 import com.cubilock.contactsLibrary.logs.models.CallLogRecord
 
 
@@ -148,5 +154,25 @@ object LogsHelper {
             }
         }
         return null
+    }
+
+    fun removeRecentCalls(context: Context, ids: ArrayList<Int>, callback: () -> Unit) {
+        ensureBackgroundThread {
+            val uri = CallLog.Calls.CONTENT_URI
+            ids.chunked(30).forEach { chunk ->
+                val selection = "${CallLog.Calls._ID} IN (${getQuestionMarks(chunk.size)})"
+                val selectionArgs = chunk.map { it.toString() }.toTypedArray()
+                context.contentResolver.delete(uri, selection, selectionArgs)
+            }
+            callback()
+        }
+    }
+
+    fun removeAllRecentCalls(context: Context, activity: AppCompatActivity, callback: () -> Unit) {
+        ensureBackgroundThread {
+            val uri = CallLog.Calls.CONTENT_URI
+            context.contentResolver.delete(uri, null, null)
+            callback()
+        }
     }
 }
