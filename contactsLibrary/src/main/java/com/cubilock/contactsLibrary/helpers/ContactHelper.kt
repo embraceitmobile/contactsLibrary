@@ -415,26 +415,30 @@ object ContactHelper {
 
     @SuppressLint("Range")
     private fun getNameFromContact(cursor: Cursor, nameType: String): LibraryName {
-        val name = cursor.getString(cursor.getColumnIndex(
-            nameType))
-        if(name.isNullOrBlank()){
-            return LibraryName()
-        }
-        val splittedName = name.split(" ")
-        if(splittedName.isNullOrEmpty()){
-            return LibraryName()
-        } else {
-            when (splittedName.size) {
-                3 -> {
-                    return LibraryName(firstName = splittedName[0], middleName = splittedName[1], lastName = splittedName[2])
-                }
-                2 -> {
-                    return LibraryName(firstName = splittedName[0], lastName = splittedName[1])
-                }
-                1 -> {
-                    return LibraryName(displayName = splittedName[0])
+        try {
+            val name = cursor.getString(cursor.getColumnIndex(
+                nameType))
+            if(name.isNullOrBlank()){
+                return LibraryName()
+            }
+            val splittedName = name.split(" ")
+            if(splittedName.isNullOrEmpty()){
+                return LibraryName()
+            } else {
+                when (splittedName.size) {
+                    3 -> {
+                        return LibraryName(firstName = splittedName[0], middleName = splittedName[1], lastName = splittedName[2])
+                    }
+                    2 -> {
+                        return LibraryName(firstName = splittedName[0], lastName = splittedName[1])
+                    }
+                    1 -> {
+                        return LibraryName(displayName = splittedName[0])
+                    }
                 }
             }
+        }catch (ex: Exception) {
+            ex.printStackTrace()
         }
         return LibraryName()
     }
@@ -577,33 +581,33 @@ object ContactHelper {
         if (phoneNumber != null && phoneNumber.isNotEmpty()) {
 
             val uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
-            val projection = arrayOf(PhoneLookup._ID)
+            val projection = arrayOf(Phone._ID, Phone.DISPLAY_NAME, Phone.NUMBER)
             val cursor = contentResolver.query(uri, projection, null, null, null)
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     id = cursor.getString(cursor.getColumnIndexOrThrow(PhoneLookup._ID))
+                    if (id != null) {
+                        val name =
+                            getNameFromContact(cursor, ContactsContract.Contacts.DISPLAY_NAME)
+                        val phoneticName = LibraryName()
+                        val numbers = getNumberFromContact(contentResolver, id)
+                        val emails = getEmailFromContact(contentResolver, id)
+                        val address = getAddressFromContact(contentResolver, id)
+                        val workInfo = getWorkInfoFromContact(contentResolver, id)
+                        val profilePicture = getPictureFromContact(contentResolver, id)
+                        cursor.close()
+                        return LibraryContact(
+                            name = name,
+                            phoneticName = phoneticName,
+                            numbers = numbers,
+                            emails = emails,
+                            address = address,
+                            libraryContactWorkInfo = workInfo,
+                            profilePicture = profilePicture
+                        )
+                    }
                 }
                 cursor.close()
-
-                if(id != null) {
-                    val name = getNameFromContact(cursor, ContactsContract.Contacts.DISPLAY_NAME)
-                    val phoneticName =
-                        getNameFromContact(cursor, ContactsContract.Contacts.PHONETIC_NAME)
-                    val numbers = getNumberFromContact(contentResolver, id)
-                    val emails = getEmailFromContact(contentResolver, id)
-                    val address = getAddressFromContact(contentResolver, id)
-                    val workInfo = getWorkInfoFromContact(contentResolver, id)
-                    val profilePicture = getPictureFromContact(contentResolver, id)
-                    return LibraryContact(
-                        name = name,
-                        phoneticName = phoneticName,
-                        numbers = numbers,
-                        emails = emails,
-                        address = address,
-                        libraryContactWorkInfo = workInfo,
-                        profilePicture = profilePicture
-                    )
-                }
             }
         }
         return null

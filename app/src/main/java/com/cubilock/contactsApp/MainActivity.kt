@@ -60,11 +60,17 @@ class MainActivity : AppCompatActivity() {
 //            Log.e("MainActivity", "Added contact Id: $result")
 //        }
 
+        /* get contact by Number */
+//        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
+//        val contactToUpdate = LibraryContact(id = "19", name = LibraryName(displayName = "Test 21", firstName = "Test", lastName = "21"), numbers = numbersToUpdate)
+        val result = ContactHelper.getContactByPhoneNumber(this, "0323430243")
+        Log.e("MainActivity", "getContactByPhoneNumber: $result")
+
         /* update contact region */
-        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
-        val contactToUpdate = LibraryContact(id = "19", name = LibraryName(displayName = "Test 21", firstName = "Test", lastName = "21"), numbers = numbersToUpdate)
-        val result = ContactHelper.updateContact(this, contactToUpdate)
-        Log.e("MainActivity", "contactId: $result")
+//        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
+//        val contactToUpdate = LibraryContact(id = "19", name = LibraryName(displayName = "Test 21", firstName = "Test", lastName = "21"), numbers = numbersToUpdate)
+//        val result = ContactHelper.updateContact(this, contactToUpdate)
+//        Log.e("MainActivity", "contactId: $result")
 
 
         /* checking the delete contact region */
