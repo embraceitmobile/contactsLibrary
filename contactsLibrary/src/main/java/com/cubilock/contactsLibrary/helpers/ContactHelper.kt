@@ -320,6 +320,7 @@ object ContactHelper {
     }
 
 
+    //fetches all list with all data of each contact
     @SuppressLint("Range")
     fun getContacts(ctx: Context, loadPicture: Boolean = false): List<LibraryContact>? {
         val list: MutableList<LibraryContact> = ArrayList()
@@ -377,6 +378,7 @@ object ContactHelper {
         return LibraryContactPicture(photo)
     }
 
+    // fetches all list with limited data of each contact
     @SuppressLint("Range")
     fun getContactsLight(context: Context): List<LibraryContact> {
         val list = ArrayList<LibraryContact>()
@@ -575,7 +577,7 @@ object ContactHelper {
         return LibraryContactWorkInfo(companyName, jobTitle)
     }
 
-    fun getContactByPhoneNumber(ctx: Context, phoneNumber: String?): LibraryContact? {
+    fun getContactByPhoneNumber(ctx: Context, phoneNumber: String?): LibraryContact {
         var id: String? = null
         val contentResolver = ctx.contentResolver
         if (phoneNumber != null && phoneNumber.isNotEmpty()) {
@@ -610,7 +612,7 @@ object ContactHelper {
                 cursor.close()
             }
         }
-        return null
+        return LibraryContact()
     }
 
     @SuppressLint("Range")

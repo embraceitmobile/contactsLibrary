@@ -98,8 +98,6 @@ object LogsHelper {
         val name: String? = map["name"]
         val number: String? = map["number"]
         val type: String? = map["type"]
-        val cachedMatchedNumber: String? = map["cachedMatchedNumber"]
-        val phoneAccountId: String? = map["phoneAccountId"]
 
 
         val predicates: MutableList<String> = ArrayList()
