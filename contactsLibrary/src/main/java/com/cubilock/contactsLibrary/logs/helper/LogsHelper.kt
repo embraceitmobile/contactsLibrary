@@ -8,12 +8,14 @@ import android.os.Looper
 import android.provider.CallLog
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.cubilock.contactsLibrary.extensions.ensureBackgroundThread
 import com.cubilock.contactsLibrary.extensions.getQuestionMarks
 import com.cubilock.contactsLibrary.extensions.times
+import com.cubilock.contactsLibrary.helpers.ContactHelper
 import com.cubilock.contactsLibrary.logs.models.CallLogRecord
 
 
@@ -43,7 +45,8 @@ object LogsHelper {
         CallLog.Calls.CACHED_NUMBER_LABEL,
         CallLog.Calls.CACHED_MATCHED_NUMBER,
         CallLog.Calls.PHONE_ACCOUNT_ID,
-        CallLog.Calls._ID
+        CallLog.Calls._ID,
+        CallLog.Calls.CACHED_NORMALIZED_NUMBER
     )
 
     @SuppressLint("MissingPermission")
@@ -65,6 +68,12 @@ object LogsHelper {
             ).use { cursor ->
 
                 while (cursor != null && cursor.moveToNext()) {
+                    var number = cursor.getString(11)
+                    if(number ==  null){
+                        number = cursor.getString(1)
+                    }
+                    val contactId = ContactHelper.getContactId(context, number)
+
                     val record = CallLogRecord(
                         id  = cursor.getString(10),
                         name = cursor.getString(5),
@@ -76,8 +85,10 @@ object LogsHelper {
                         cachedNumberType = cursor.getInt(6),
                         cachedNumberLabel = cursor.getString(7),
                         cachedMatchedNumber = cursor.getString(8),
+                        cachedNormalizedNumber = cursor.getString(11),
                         simDisplayName = getSimDisplayName(subscriptions, cursor.getString(9)),
                         phoneAccountId = cursor.getString(9),
+                        contactId = contactId
                     )
                     entries.add(record)
                 }

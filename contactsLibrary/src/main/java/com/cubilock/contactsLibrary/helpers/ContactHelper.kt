@@ -267,9 +267,70 @@ object ContactHelper {
         }
     }
 
-    fun updateContact(context: Context, contact: LibraryContact): Long? {
+    fun deleteAndAddContact(context: Context, contact: LibraryContact): Long? {
         deleteContactById(context, contact.id)
         return addContact(context, contact)
+    }
+    fun updateNameAndNumber(
+        context: Context?,
+        contact: LibraryContact,
+        number: String?,
+        newName: String?,
+        newNumber: String?
+    ): Boolean {
+        var newNumber = newNumber
+        if (context == null || number == null || number.trim { it <= ' ' }.isEmpty()) return false
+        if (newNumber != null && newNumber.trim { it <= ' ' }.isEmpty()) newNumber = null
+        if (newNumber == null) return false
+        val contactId = getContactId(context, number) ?: return false
+
+        //selection for name
+        var where = java.lang.String.format(
+            "%s = ?",
+            ContactsContract.Data.CONTACT_ID /*contactId*/
+        )
+        val args = arrayOf(contactId)
+        val operations: ArrayList<ContentProviderOperation> = ArrayList()
+        operations.add(
+            ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                .withSelection(where, args)
+                .withValue(StructuredName.GIVEN_NAME, newName)
+                .build()
+        )
+
+
+        //change args for number
+        args[0] = number
+        operations.add(
+            ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                .withSelection(where, args)
+                .withValue(ContactsContract.Data.DATA1 /*number*/, newNumber)
+                .build()
+        )
+        try {
+            val results = context.contentResolver.applyBatch(ContactsContract.AUTHORITY, operations)
+            for (result in results) {
+                Log.d("Update Result", result.toString())
+            }
+            return true
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
+    @SuppressLint("Range")
+    fun getContactId(context: Context?, number: String): String? {
+        if (context == null) return null
+        val cursor = context.contentResolver.query(
+            Phone.CONTENT_URI, arrayOf(Phone.CONTACT_ID, Phone.NUMBER),
+            Phone.NORMALIZED_NUMBER + "=? OR " + Phone.NUMBER + "=?", arrayOf(number, number),
+            null
+        )
+        if (cursor == null || cursor.count == 0) return null
+        cursor.moveToFirst()
+        val id = cursor.getString(cursor.getColumnIndex(Phone.CONTACT_ID))
+        cursor.close()
+        return id
     }
 
     fun getPictureForContact(ctx: Context, id: String): LibraryContactPicture {

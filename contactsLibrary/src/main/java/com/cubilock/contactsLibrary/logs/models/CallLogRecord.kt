@@ -11,6 +11,8 @@ data class CallLogRecord(
     var cachedNumberType: Int? = -1,
     var cachedNumberLabel: String? = "",
     var cachedMatchedNumber: String? = "",
+    var cachedNormalizedNumber: String? = "",
     var simDisplayName: String? = "",
     var phoneAccountId: String? = "",
+    var contactId: String? = "",
 )
