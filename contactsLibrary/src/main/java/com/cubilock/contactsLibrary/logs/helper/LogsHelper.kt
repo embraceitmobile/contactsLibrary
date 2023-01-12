@@ -17,6 +17,8 @@ import com.cubilock.contactsLibrary.extensions.getQuestionMarks
 import com.cubilock.contactsLibrary.extensions.times
 import com.cubilock.contactsLibrary.helpers.ContactHelper
 import com.cubilock.contactsLibrary.logs.models.CallLogRecord
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 object LogsHelper {
@@ -177,10 +179,26 @@ object LogsHelper {
         }
     }
 
-    fun removeAllRecentCalls(context: Context, activity: AppCompatActivity, callback: () -> Unit) {
+    fun removeAllRecentCalls(context: Context, callback: () -> Unit) {
         ensureBackgroundThread {
             val uri = CallLog.Calls.CONTENT_URI
             context.contentResolver.delete(uri, null, null)
+            callback()
+        }
+    }
+    fun removeLogsByDate(context: Context, date: String, callback: () -> Unit) {
+        ensureBackgroundThread {
+            val uri = CallLog.Calls.CONTENT_URI
+            val selection = "${CallLog.Calls.DATE} = ${date}"
+            context.contentResolver.delete(uri, selection, null)
+            callback()
+        }
+    }
+    fun removeLogsByNumber(context: Context, number: String, callback: () -> Unit) {
+        ensureBackgroundThread {
+            val uri = CallLog.Calls.CONTENT_URI
+            val selection = "${CallLog.Calls.NUMBER} = ${number}"
+            context.contentResolver.delete(uri, selection, null)
             callback()
         }
     }
