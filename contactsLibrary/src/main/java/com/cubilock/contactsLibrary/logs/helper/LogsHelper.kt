@@ -202,4 +202,12 @@ object LogsHelper {
             callback()
         }
     }
+    fun removeLogsOfNumberAtDate(context: Context, number: String, date:String, callback: () -> Unit) {
+        ensureBackgroundThread {
+            val uri = CallLog.Calls.CONTENT_URI
+            val selection = "${CallLog.Calls.NUMBER} = ${number} AND ${CallLog.Calls.DATE} = ${date}"
+            context.contentResolver.delete(uri, selection, null)
+            callback()
+        }
+    }
 }
