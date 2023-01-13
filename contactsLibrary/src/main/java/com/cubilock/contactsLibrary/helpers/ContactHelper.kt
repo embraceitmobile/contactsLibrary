@@ -267,6 +267,188 @@ object ContactHelper {
         }
     }
 
+    @SuppressLint("MissingPermission")
+    fun updateContact(context: Context, contact: LibraryContact): Boolean?{
+        val ops = ArrayList<ContentProviderOperation>()
+
+        var where = java.lang.String.format(
+            "%s = ?",
+            ContactsContract.Data.CONTACT_ID /*contactId*/
+        )
+        val args = arrayOf(contact.id)
+
+        //------------------------------------------------------ Names
+
+      /*  contact.name?.let { name ->
+            if(!name.displayName.isNullOrBlank()) {
+                ops.add(ContentProviderOperation.newUpdate(
+                    ContactsContract.Data.CONTENT_URI)
+                    .withSelection(where, args)
+                    .withValue(ContactsContract.Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(StructuredName.DISPLAY_NAME, name.displayName).build()
+                )
+            }
+            if(name.firstName != null ||  name.middleName != null || name.lastName != null) {
+                ops.add(ContentProviderOperation.newUpdate(
+                    ContactsContract.Data.CONTENT_URI)
+                    .withSelection(where, args)
+                    .withValue(ContactsContract.Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(StructuredName.GIVEN_NAME, contact.name?.firstName)
+                    .withValue(StructuredName.MIDDLE_NAME, contact.name?.middleName)
+                    .withValue(StructuredName.FAMILY_NAME, contact.name?.lastName)
+                    .build())
+            }
+        }
+
+        //------------------------------------------------------ Phonetic Names
+
+        contact.phoneticName?.let { name ->
+            if(!name.displayName.isNullOrBlank()) {
+                ops.add(ContentProviderOperation.newUpdate(
+                    ContactsContract.Data.CONTENT_URI)
+                    .withSelection(where, args)
+                    .withValue(ContactsContract.Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(StructuredName.PHONETIC_NAME, name.displayName).build())
+            }
+            if(name.firstName != null ||  name.middleName != null || name.lastName != null) {
+                ops.add(ContentProviderOperation.newUpdate(
+                    ContactsContract.Data.CONTENT_URI)
+                    .withSelection(where, args)
+                    .withValue(ContactsContract.Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(StructuredName.PHONETIC_GIVEN_NAME, name.firstName)
+                    .withValue(StructuredName.PHONETIC_MIDDLE_NAME, name.middleName)
+                    .withValue(StructuredName.PHONETIC_FAMILY_NAME, name.lastName)
+                    .build())
+            }
+        }
+*/
+        //------------------------------------------------------ Mobile Number
+
+        contact.numbers.let {
+            contact.numbers.forEach{item ->
+                ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                    .withSelection(where, args)
+                    .withValue(Phone.NUMBER, item.number ?: "")
+                    .withValue(Phone.TYPE, item.category?.toPhoneType() ?: Phone.TYPE_MOBILE)
+                    .build()
+                )
+            }
+
+        }
+
+
+     /*   //------------------------------------------------------ Email
+        contact.emails?.let {
+            contact.emails.forEach{item ->
+                ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                    .withSelection(where, args)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                        Email.CONTENT_ITEM_TYPE)
+                    .withValue(Email.DATA, item.email ?: "")
+                    .withValue(Email.TYPE, item.category?.toEmailType() ?: Email.TYPE_MOBILE)
+                    .build())
+            }
+
+        }
+
+
+        //------------------------------------------------------ Organization
+
+        contact.libraryContactWorkInfo?.let {
+            ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                .withSelection(where, args)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                    Organization.CONTENT_ITEM_TYPE)
+                .withValue(Organization.COMPANY, it.company)
+                .withValue(Organization.TYPE,
+                    Organization.TYPE_WORK)
+                .withValue(Organization.TITLE, it.jobTitle)
+                .withValue(Organization.TYPE,
+                    Organization.TYPE_WORK)
+                .build())
+        }
+
+        //------------------------------------------------------ Notes
+
+        contact.notes?.let {
+            ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                .withSelection(where, args)
+                .withValue(ContactsContract.Data.MIMETYPE, Note.CONTENT_ITEM_TYPE)
+                .withValue(Note.NOTE, contact.notes)
+                .build())
+        }
+
+        //------------------------------------------------------ Label
+
+        contact.label?.let {
+            val accounts = AccountManager.get(context).accounts
+            accounts.forEach {
+                ops.add(ContentProviderOperation.newUpdate(ContactsContract.Groups.CONTENT_URI)
+                    .withSelection(where, args)
+                    .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.Groups.CONTENT_ITEM_TYPE)
+                    .withValue(ContactsContract.Groups.TITLE, it)
+                    .withValue(ContactsContract.Groups.ACCOUNT_NAME, it.name)
+                    .withValue(ContactsContract.Groups.ACCOUNT_TYPE, it.type)
+                    .build()
+                )
+            }
+        }
+
+        //------------------------------------------------------ Address
+
+        contact.address?.let { address ->
+            ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                .withSelection(where, args)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                    StructuredPostal.CONTENT_ITEM_TYPE)
+                .withValue(StructuredPostal.CITY, address.city)
+                .withValue(StructuredPostal.STREET, address.street)
+                .withValue(StructuredPostal.POSTCODE, address.postcode)
+                .withValue(StructuredPostal.REGION, address.state)
+                .withValue(StructuredPostal.COUNTRY, address.country)
+                .build())
+        }
+
+        //------------------------------------------------------ Photo
+
+        contact.profilePicture?.let { profilePicture ->
+            val stream = ByteArrayOutputStream()
+            if(profilePicture.pictureBitmap != null) {
+                profilePicture.pictureBitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                    .withSelection(where, args)
+                    .withValue(ContactsContract.Data.IS_SUPER_PRIMARY, 1)
+                    .withValue(ContactsContract.Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
+                    .withValue(Photo.PHOTO, stream.toByteArray())
+                    .build())
+            }
+            try {
+                stream.flush()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+*/
+        //todo Need to update the for favorite contacts
+//        ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+//            .withValueBackReference(ContactsContract.Data._ID, 0)
+//            .withValue(ContactsContract.Contacts.STARRED, if (contact.isFavorite) 1 else 0)
+//            .build())
+
+        // Asking the Contact provider to create a new contact
+
+        return try {
+            val results = context.contentResolver.applyBatch(ContactsContract.AUTHORITY, ops)
+            for(result in results){
+                Log.e("ContactLib", "result ${result.uri.toString()}")
+            }
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     fun deleteAndAddContact(context: Context, contact: LibraryContact): Long? {
         deleteContactById(context, contact.id)
         return addContact(context, contact)
@@ -553,9 +735,6 @@ object ContactHelper {
 
     @SuppressLint("Range")
     private fun getEmailFromContact(contentResolver: ContentResolver, id: String): List<LibraryEmail> {
-        var homeEmail: String? = ""
-        var workEmail: String? = ""
-        var otherEmail: String? = ""
         var emails = mutableListOf<LibraryEmail>()
 
         val emailCursor =
@@ -569,22 +748,6 @@ object ContactHelper {
             var emailAddress = emailCursor.getString(emailCursor.getColumnIndex(Email.DATA))
             val emailType = emailCursor.getInt(emailCursor.getColumnIndex(Email.TYPE))
             val categoryType = emailType.toEmailCategoryType()
-//            Log.e("getEmailFromContact", "$emailAddress")
-//            try {
-//                when (emailCursor.getInt(emailCursor.getColumnIndex(Email.TYPE))) {
-//                    Phone.TYPE_MOBILE -> {
-//                        homeEmail = emailAddress
-//                    }
-//                    Phone.TYPE_WORK -> {
-//                        workEmail = emailAddress
-//                    }
-//                    Phone.TYPE_OTHER -> {
-//                        otherEmail = emailAddress
-//                    }
-//                }
-//            } catch (ex:Exception){
-//                homeEmail = emailAddress
-//            }
             val libraryEmail = LibraryEmail(emailAddress,categoryType.value)
             if(!emails.contains(libraryEmail))
                 emails.add(libraryEmail)
