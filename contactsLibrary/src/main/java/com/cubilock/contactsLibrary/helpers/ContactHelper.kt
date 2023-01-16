@@ -1,5 +1,6 @@
 package com.cubilock.contactsLibrary.helpers
 
+import android.accounts.Account
 import android.accounts.AccountManager
 import android.annotation.SuppressLint
 import android.content.*
@@ -17,6 +18,10 @@ import com.cubilock.contactsLibrary.mapper.toEmailType
 import com.cubilock.contactsLibrary.mapper.toPhoneCategoryType
 import com.cubilock.contactsLibrary.mapper.toPhoneType
 import com.cubilock.contactsLibrary.models.*
+import contacts.core.*
+import contacts.core.entities.Contact
+import contacts.core.entities.Name
+import contacts.core.util.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -267,8 +272,55 @@ object ContactHelper {
         }
     }
 
+    fun updateContact(context: Context, contactData: LibraryContact, oldNumber:String):Boolean{
+        val contact = findContactToUpdate(context, oldNumber)
+        val updateResult = Contacts(context)
+            .update()
+            .contacts(contact.mutableCopy {
+                setOrganization {
+                    company = contactData.libraryContactWorkInfo?.company
+                    title = contactData.libraryContactWorkInfo?.jobTitle
+                }
+                emails().first().apply {
+                    address = contactData.emails.first().email
+                }
+                phones().first().apply {
+                    number = contactData.numbers.first().number
+                }
+                names().first().apply {
+                    givenName = contactData.name?.firstName
+                    middleName = contactData.name?.middleName
+                    familyName = contactData.name?.lastName
+                }
+                addresses().first().apply {
+                    street = contactData.address?.street
+                    city = contactData.address?.city
+                    country = contactData.address?.country
+                    postcode = contactData.address?.postcode
+                }
+            })
+            .commit()
+        return updateResult.isSuccessful
+    }
+    fun findContactToUpdate(context: Context, number: String):Contact{
+        val contacts = Contacts(context)
+            .query()
+            .where {
+                        (Phone.Number equalTo number)
+            }
+            .include { setOf(
+                Contact.Id,
+                Contact.DisplayNamePrimary,
+                Phone.Number
+            ) }
+            .orderBy(ContactsFields.DisplayNamePrimary.desc())
+            .offset(0)
+            .limit(1)
+            .find()
+        return contacts.first()
+    }
     @SuppressLint("MissingPermission")
-    fun updateContact(context: Context, contact: LibraryContact): Boolean?{
+    fun updateContactOld(context: Context, contact: LibraryContact): Boolean?{
         val ops = ArrayList<ContentProviderOperation>()
 
         var where = java.lang.String.format(
@@ -455,7 +507,6 @@ object ContactHelper {
     }
     fun updateNameAndNumber(
         context: Context?,
-        contact: LibraryContact,
         number: String?,
         newName: String?,
         newNumber: String?

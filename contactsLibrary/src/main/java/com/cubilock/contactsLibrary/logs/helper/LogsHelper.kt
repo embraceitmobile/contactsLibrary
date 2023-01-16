@@ -186,10 +186,10 @@ object LogsHelper {
             callback()
         }
     }
-    fun removeLogsByDate(context: Context, date: String, callback: () -> Unit) {
+    fun removeLogsByDate(context: Context, dateFrom:String, dateTo:String, callback: () -> Unit) {
         ensureBackgroundThread {
             val uri = CallLog.Calls.CONTENT_URI
-            val selection = "${CallLog.Calls.DATE} = ${date}"
+            val selection = "${CallLog.Calls.DATE} >= ${dateFrom} AND ${CallLog.Calls.DATE} <= ${dateTo}"
             context.contentResolver.delete(uri, selection, null)
             callback()
         }
@@ -202,10 +202,10 @@ object LogsHelper {
             callback()
         }
     }
-    fun removeLogsOfNumberAtDate(context: Context, number: String, date:String, callback: () -> Unit) {
+    fun removeLogsOfNumberAtDate(context: Context, number: String, dateFrom:String, dateTo:String, callback: () -> Unit) {
         ensureBackgroundThread {
             val uri = CallLog.Calls.CONTENT_URI
-            val selection = "${CallLog.Calls.NUMBER} = ${number} AND ${CallLog.Calls.DATE} = ${date}"
+            val selection = "${CallLog.Calls.NUMBER} = ${number} AND ${CallLog.Calls.DATE} >= ${dateFrom} AND ${CallLog.Calls.DATE} <= ${dateTo}"
             context.contentResolver.delete(uri, selection, null)
             callback()
         }

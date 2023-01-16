@@ -12,6 +12,7 @@ import com.cubilock.contactsLibrary.logs.helper.LogsHelper
 import com.cubilock.contactsLibrary.models.*
 import java.io.IOException
 import java.net.URL
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
@@ -25,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         /*checking contacts saving region*/
 //        val idsList = mutableListOf<Long>()
-        val homeNumber = LibraryNumber("03262233433", CategoryType.HOME.value)
+       /* val homeNumber = LibraryNumber("03262233433", CategoryType.HOME.value)
         val mobileNumber = LibraryNumber("03457693743", CategoryType.MOBILE.value)
         val workNumber = LibraryNumber("034937402232", CategoryType.WORK.value)
         val otherNumber = LibraryNumber("0323430243", CategoryType.OTHER.value)
@@ -35,7 +36,27 @@ class MainActivity : AppCompatActivity() {
         val mobileEmail = LibraryEmail("zeed@zeed.zeed", CategoryType.MOBILE.value)
         val workEmail = LibraryEmail("zeef@zeef.zeef", CategoryType.WORK.value)
         val otherEmail = LibraryEmail("zeeg@zeeg.zeeg", CategoryType.OTHER.value)
-        val emails = listOf(workEmail, mobileEmail, otherEmail, homeEmail)
+        val emails = listOf(workEmail, mobileEmail, otherEmail, homeEmail)*/
+
+        /*val contacts = ContactHelper.getContacts(this@MainActivity, false)
+
+        if (contacts != null) {
+            for(contact in contacts){
+                if (contact.numbers.contains(LibraryNumber("15555", "mobile"))){
+                     val numbers = listOf<LibraryNumber>(LibraryNumber("0320 5801273", "mobile"),LibraryNumber("03455916449", "work"),LibraryNumber("03185322814", "home"))
+                    contact.numbers = numbers
+                    ContactHelper.updateContact(this@MainActivity, contact, "1555")
+                    Log.e("ContactLib", "contact name after update = "+contact?.numbers)
+                }
+            }
+        }*/
+        val dateFrom = SimpleDateFormat("dd-MM-yyyy").parse("09-01-2023")
+        val dateTo = SimpleDateFormat("dd-MM-yyyy").parse("14-01-2023")
+        LogsHelper.removeLogsByDate(this@MainActivity, dateFrom.time.toString(), dateTo.time.toString(), {})
+
+
+
+
 
 //
 //        for(i in 0..0) {
@@ -63,8 +84,8 @@ class MainActivity : AppCompatActivity() {
         /* get contact by Number */
 //        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
 //        val contactToUpdate = LibraryContact(id = "19", name = LibraryName(displayName = "Test 21", firstName = "Test", lastName = "21"), numbers = numbersToUpdate)
-        val result = ContactHelper.getContactByPhoneNumber(this, "0323430243")
-        Log.e("MainActivity", "getContactByPhoneNumber: $result")
+        /*val result = ContactHelper.getContactByPhoneNumber(this, "0323430243")
+        Log.e("MainActivity", "getContactByPhoneNumber: $result")*/
 
         /* update contact region */
 //        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
@@ -86,9 +107,9 @@ class MainActivity : AppCompatActivity() {
 //        Log.e("MainActivity","contactExists: $contactExist")
 
         /* Getting contact list region */
-        Log.e("MainActivity", "before Loading")
+        /*Log.e("MainActivity", "before Loading")
         val list = ContactHelper.getContacts(this)
-        Log.e("MainActivity", "After loading list: ${list}")
+        Log.e("MainActivity", "After loading list: ${list}")*/
 
         /* Getting single contact region*/
 //        Log.e("MainActivity", "Before getting Single Contact")
