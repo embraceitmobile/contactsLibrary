@@ -197,7 +197,7 @@ object LogsHelper {
     fun removeLogsByNumber(context: Context, number: String, callback: () -> Unit) {
         ensureBackgroundThread {
             val uri = CallLog.Calls.CONTENT_URI
-            val selection = "${CallLog.Calls.NUMBER} LIKE %${number}% OR ${CallLog.Calls.CACHED_MATCHED_NUMBER} LIKE %${number}%"
+            val selection = "${CallLog.Calls.NUMBER} LIKE '%${number}%' OR ${CallLog.Calls.CACHED_MATCHED_NUMBER} LIKE '%${number}%'"
             context.contentResolver.delete(uri, selection, null)
             callback()
         }

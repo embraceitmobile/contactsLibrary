@@ -38,8 +38,6 @@ dependencies {
     implementation "androidx.core:core-ktx:$ktxVersion"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"
-    implementation 'com.github.vestrel00:contacts-android:0.2.4'
-    implementation 'com.github.vestrel00.contacts-android:core:0.2.4'
 }
 
 afterEvaluate {
