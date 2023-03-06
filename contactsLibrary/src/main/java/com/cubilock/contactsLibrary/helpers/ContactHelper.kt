@@ -13,6 +13,7 @@ import android.provider.ContactsContract.CommonDataKinds.*
 import android.provider.ContactsContract.PhoneLookup
 import android.provider.MediaStore
 import android.util.Log
+import androidx.core.net.toFile
 import com.cubilock.contactsLibrary.mapper.toEmailCategoryType
 import com.cubilock.contactsLibrary.mapper.toEmailType
 import com.cubilock.contactsLibrary.mapper.toPhoneCategoryType
@@ -436,7 +437,7 @@ object ContactHelper {
                 profilePicture.pictureBitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, stream)
                 var builder = ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
                 builder.withSelection(
-                    ContactsContract.Data.CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + "=?",
+                    ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + "=?",
                     arrayOf(id.toString(), Photo.CONTENT_ITEM_TYPE)
                 )
                 builder.withValue(Photo.PHOTO, stream.toByteArray())
@@ -601,12 +602,13 @@ object ContactHelper {
             person,
             ContactsContract.Contacts.Photo.CONTENT_DIRECTORY
         )
+
         var photo: Bitmap? = null
         if (inputStream != null) {
             photo = BitmapFactory.decodeStream(inputStream)
         }
 
-        return LibraryContactPicture(photo)
+        return LibraryContactPicture(photo, uri = pURI.toString())
     }
 
     // fetches all list with limited data of each contact
