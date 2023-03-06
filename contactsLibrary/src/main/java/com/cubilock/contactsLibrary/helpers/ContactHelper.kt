@@ -440,6 +440,7 @@ object ContactHelper {
                     ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + "=?",
                     arrayOf(id.toString(), Photo.CONTENT_ITEM_TYPE)
                 )
+//                builder.withValue(ContactsContract.Data.IS_SUPER_PRIMARY, 1)
                 builder.withValue(Photo.PHOTO, stream.toByteArray())
                 ops.add(builder.build())
             }
