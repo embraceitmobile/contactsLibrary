@@ -74,7 +74,7 @@ object LogsHelper {
                     if(number ==  null){
                         number = cursor.getString(1)
                     }
-                    val contactId = ContactHelper.getContactId(context, number)
+                    val contactId = "0"//ContactHelper.getContactId(context, number)
 
                     val record = CallLogRecord(
                         id  = cursor.getString(10),
@@ -130,7 +130,7 @@ object LogsHelper {
             generatePredicate(namePredicates, CallLog.Calls.PHONE_ACCOUNT_ID, OPERATOR_LIKE, number)
             predicates.add("(${namePredicates.joinToString( " OR ")}")
         }
-        return queryLogs(context, "${predicates.joinToString(" AND ")}")
+        return  queryLogs(context, "${predicates.joinToString(" AND ")}")
     }
 
     private fun generatePredicate(
