@@ -8,12 +8,11 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.RemoteException
+import android.provider.BaseColumns
 import android.provider.ContactsContract
 import android.provider.ContactsContract.CommonDataKinds.*
 import android.provider.ContactsContract.PhoneLookup
-import android.provider.MediaStore
 import android.util.Log
-import androidx.core.net.toFile
 import com.cubilock.contactsLibrary.mapper.toEmailCategoryType
 import com.cubilock.contactsLibrary.mapper.toEmailType
 import com.cubilock.contactsLibrary.mapper.toPhoneCategoryType
@@ -480,7 +479,7 @@ object ContactHelper {
         if (context == null) return null
         val cursor = context.contentResolver.query(
             Phone.CONTENT_URI, arrayOf(Phone.CONTACT_ID, Phone.NUMBER),
-            Phone.NORMALIZED_NUMBER + "=? OR " + Phone.NUMBER + "=?", arrayOf(number, number),
+            Phone.NORMALIZED_NUMBER + " LIKE ? OR " + Phone.NUMBER + " LIKE ?", arrayOf("%$number%", "%$number%"),
             null
         )
         if (cursor == null || cursor.count == 0) return null
@@ -848,8 +847,91 @@ object ContactHelper {
         return LibraryContactWorkInfo(companyName, jobTitle)
     }
 
-    fun getContactByPhoneNumber(ctx: Context, phoneNumber: String?): LibraryContact {
-        var id: String? = null
+    fun contactIdByPhoneNumber(ctx: Context, phoneNumber: String?): String? {
+        var contactId:String = ""
+        val contentResolver: ContentResolver = ctx.getContentResolver()
+
+        val uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
+
+        val projection = arrayOf(PhoneLookup.DISPLAY_NAME, PhoneLookup._ID)
+
+        val cursor = contentResolver.query(
+            uri,
+            projection,
+            null,
+            null,
+            null
+        )
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                val contactName =
+                    cursor.getString(cursor.getColumnIndexOrThrow(PhoneLookup.DISPLAY_NAME))
+                contactId = cursor.getString(cursor.getColumnIndexOrThrow(PhoneLookup._ID))
+                Log.d("LOGTAG", "contactMatch name: $contactName")
+                Log.d("LOGTAG", "contactMatch id: $contactId")
+            }
+            cursor.close()
+        }
+        return contactId
+    }
+    fun getContactForPhone(ctx: Context, phone: String): LibraryContact? {
+        if (phone.isEmpty()) return null
+        val contentResolver = ctx.contentResolver
+        val uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phone))
+        val projection = arrayOf(BaseColumns._ID)
+        val contactIds: ArrayList<String> = ArrayList()
+        val phoneCursor: Cursor? = contentResolver.query(uri, projection, null, null, null)
+        while (phoneCursor != null && phoneCursor.moveToNext()) {
+            contactIds.add(phoneCursor.getString(phoneCursor.getColumnIndex(BaseColumns._ID)))
+        }
+        if (phoneCursor != null) phoneCursor.close()
+        if (!contactIds.isEmpty()) {
+            val contactIdsListString = contactIds.toString().replace("[", "(").replace("]", ")")
+            val contactSelection = ContactsContract.Data.CONTACT_ID + " IN " + contactIdsListString
+            var cursor =  contentResolver.query(
+                ContactsContract.Data.CONTENT_URI,
+                projection,
+                contactSelection,
+                null,
+                null
+            )
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    val id = cursor.getString(cursor.getColumnIndexOrThrow(PhoneLookup._ID))
+                    if (id != null) {
+                        val name =
+                            getNameFromContact(cursor, ContactsContract.Contacts.DISPLAY_NAME)
+                        val phoneticName = LibraryName()
+                        val numbers = getNumberFromContact(contentResolver, id)
+                        val emails = getEmailFromContact(contentResolver, id)
+                        val address = getAddressFromContact(contentResolver, id)
+                        val workInfo = getWorkInfoFromContact(contentResolver, id)
+                        val profilePicture = getPictureFromContact(contentResolver, id)
+                        cursor.close()
+                        return LibraryContact(
+                            name = name,
+                            phoneticName = phoneticName,
+                            numbers = numbers,
+                            emails = emails,
+                            address = address,
+                            libraryContactWorkInfo = workInfo,
+                            profilePicture = profilePicture
+                        )
+                    }
+                }
+                cursor.close()
+            }
+        }
+
+        return null
+    }
+    fun getContactByPhoneNumber(ctx: Context, phoneNumber: String?): LibraryContact? {
+        var contact:LibraryContact? = null
+        val contactId = phoneNumber?.let { getContactId(ctx, it) }
+        contactId?.let { contact = getContactById(ctx, it, false) }
+        return contact
+        /*var id: String? = null
         val contentResolver = ctx.contentResolver
         if (phoneNumber != null && phoneNumber.isNotEmpty()) {
 
@@ -883,7 +965,7 @@ object ContactHelper {
                 cursor.close()
             }
         }
-        return LibraryContact()
+        return LibraryContact()*/
     }
 
     @SuppressLint("Range")
