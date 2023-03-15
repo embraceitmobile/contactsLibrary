@@ -479,7 +479,7 @@ object ContactHelper {
         if (context == null) return null
         val cursor = context.contentResolver.query(
             Phone.CONTENT_URI, arrayOf(Phone.CONTACT_ID, Phone.NUMBER),
-            Phone.NORMALIZED_NUMBER + " LIKE ? OR " + Phone.NUMBER + " LIKE ?", arrayOf("%$number%", "%$number%"),
+            Phone.NORMALIZED_NUMBER + " = ? OR " + Phone.NUMBER + " = ?", arrayOf("$number", "$number"),
             null
         )
         if (cursor == null || cursor.count == 0) return null
