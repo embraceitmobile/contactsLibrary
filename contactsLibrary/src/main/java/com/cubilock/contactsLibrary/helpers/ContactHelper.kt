@@ -477,17 +477,57 @@ object ContactHelper {
     @SuppressLint("Range")
     fun getContactId(context: Context?, number: String): String? {
         if (context == null) return null
-        val cursor = context.contentResolver.query(
-            Phone.CONTENT_URI, arrayOf(Phone.CONTACT_ID, Phone.NUMBER),
-            Phone.NORMALIZED_NUMBER + " = ? OR " + Phone.NUMBER + " = ?", arrayOf("$number", "$number"),
-            null
-        )
-        if (cursor == null || cursor.count == 0) return null
-        cursor.moveToFirst()
-        val id = cursor.getString(cursor.getColumnIndex(Phone.CONTACT_ID))
-        cursor.close()
-        return id
+//        testId(number,context)
+//        getContactName(number, context)
+
+//        val cursor = context.contentResolver.query(
+//            Phone.CONTENT_URI, arrayOf(Phone.CONTACT_ID, Phone.NUMBER),
+//            Phone.NORMALIZED_NUMBER + " = ? OR " + Phone.NUMBER + " = ?", arrayOf("$number", "$number"),
+//            null
+//        )
+//        if (cursor == null || cursor.count == 0) return null
+//        cursor.moveToFirst()
+//        val id = cursor.getString(cursor.getColumnIndex(Phone.CONTACT_ID))
+//        cursor.close()
+        return getContactIdTest(context, number)
     }
+
+    @SuppressLint("Range")
+    fun getContactName(number: String, context: Context) {
+
+        // // define the columns I want the query to return
+        val projection = arrayOf(
+            PhoneLookup.DISPLAY_NAME,
+            PhoneLookup.NUMBER,
+            PhoneLookup.HAS_PHONE_NUMBER
+        )
+
+        // encode the phone number and build the filter URI
+        val contactUri = Uri.withAppendedPath(
+            PhoneLookup.CONTENT_FILTER_URI,
+            Uri.encode(number)
+        )
+
+        // query time
+        val cursor = context.contentResolver.query(
+            contactUri,
+            projection, null, null, null
+        )
+        // querying all contacts = Cursor cursor =
+        // context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,
+        // projection, null, null, null);
+        if (cursor!!.moveToFirst()) {
+            var contactName = cursor.getString(
+                cursor
+                    .getColumnIndex(PhoneLookup.DISPLAY_NAME)
+            )
+
+            Log.i("Contact Name", "Contact Name: $contactName")
+
+        }
+        cursor.close()
+    }
+
 
     fun getPictureForContact(ctx: Context, id: String): LibraryContactPicture {
         val contentResolver = ctx.contentResolver
@@ -1106,5 +1146,32 @@ object ContactHelper {
             cur?.close()
         }
         return false
+    }
+
+    // test functions:------------------------------------------------------------------------------
+    @SuppressLint("Range")
+    fun getContactIdTest(context: Context?, number: String): String? {
+        val lookupUri = Uri.withAppendedPath(
+            PhoneLookup.CONTENT_FILTER_URI,
+            Uri.encode(number)
+        )
+
+        val projection = arrayOf( ///as we need only this colum from a table...
+            ContactsContract.Contacts.DISPLAY_NAME,
+            ContactsContract.Contacts._ID
+        )
+
+        var id: String? = null
+        val sortOrder = StructuredPostal.DISPLAY_NAME + " COLLATE LOCALIZED ASC"
+        val cursor = context?.contentResolver?.query(lookupUri, projection, null, null, sortOrder)
+        while (cursor?.moveToNext() == true) {
+            val name = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+                .let { cursor.getString(it) }
+            id = cursor.getColumnIndex(ContactsContract.Contacts._ID).let { cursor.getString(it) }
+
+        }
+        cursor?.close()
+
+        return id
     }
 }
