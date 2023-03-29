@@ -26,17 +26,17 @@ class MainActivity : AppCompatActivity() {
 
         /*checking contacts saving region*/
 //        val idsList = mutableListOf<Long>()
-       /* val homeNumber = LibraryNumber("03262233433", CategoryType.HOME.value)
-        val mobileNumber = LibraryNumber("03457693743", CategoryType.MOBILE.value)
-        val workNumber = LibraryNumber("034937402232", CategoryType.WORK.value)
-        val otherNumber = LibraryNumber("0323430243", CategoryType.OTHER.value)
-        val numbers = listOf(workNumber, mobileNumber, otherNumber, homeNumber)
+        /* val homeNumber = LibraryNumber("03262233433", CategoryType.HOME.value)
+         val mobileNumber = LibraryNumber("03457693743", CategoryType.MOBILE.value)
+         val workNumber = LibraryNumber("034937402232", CategoryType.WORK.value)
+         val otherNumber = LibraryNumber("0323430243", CategoryType.OTHER.value)
+         val numbers = listOf(workNumber, mobileNumber, otherNumber, homeNumber)
 
-        val homeEmail = LibraryEmail("zee@zee.zee", CategoryType.HOME.value)
-        val mobileEmail = LibraryEmail("zeed@zeed.zeed", CategoryType.MOBILE.value)
-        val workEmail = LibraryEmail("zeef@zeef.zeef", CategoryType.WORK.value)
-        val otherEmail = LibraryEmail("zeeg@zeeg.zeeg", CategoryType.OTHER.value)
-        val emails = listOf(workEmail, mobileEmail, otherEmail, homeEmail)*/
+         val homeEmail = LibraryEmail("zee@zee.zee", CategoryType.HOME.value)
+         val mobileEmail = LibraryEmail("zeed@zeed.zeed", CategoryType.MOBILE.value)
+         val workEmail = LibraryEmail("zeef@zeef.zeef", CategoryType.WORK.value)
+         val otherEmail = LibraryEmail("zeeg@zeeg.zeeg", CategoryType.OTHER.value)
+         val emails = listOf(workEmail, mobileEmail, otherEmail, homeEmail)*/
 
         /*val contacts = ContactHelper.getContacts(this@MainActivity, false)
 
@@ -52,10 +52,11 @@ class MainActivity : AppCompatActivity() {
         }*/
         val dateFrom = SimpleDateFormat("dd-MM-yyyy").parse("09-01-2023")
         val dateTo = SimpleDateFormat("dd-MM-yyyy").parse("14-01-2023")
-        LogsHelper.removeLogsByDate(this@MainActivity, dateFrom.time.toString(), dateTo.time.toString(), {})
-
-
-
+        LogsHelper.removeLogsByDate(
+            this@MainActivity,
+            dateFrom.time.toString(),
+            dateTo.time.toString(),
+            {})
 
 
 //
@@ -84,8 +85,8 @@ class MainActivity : AppCompatActivity() {
         /* get contact by Number */
 //        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
 //        val contactToUpdate = LibraryContact(id = "19", name = LibraryName(displayName = "Test 21", firstName = "Test", lastName = "21"), numbers = numbersToUpdate)
-        val result = ContactHelper.getContactByPhoneNumber(this, "03431420420")
-        Log.e("MainActivity", "getContactByPhoneNumber: $result")
+//        val result = ContactHelper.getContactByPhoneNumber(this, "03431420420")
+//        Log.e("MainActivity", "getContactByPhoneNumber: $result")
 
         /* update contact region */
 //        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
@@ -113,7 +114,9 @@ class MainActivity : AppCompatActivity() {
 
         /* Getting single contact region*/
 //        Log.e("MainActivity", "Before getting Single Contact")
-//        val result = ContactHelper.getContactById(this, "22")
+//        val result = ContactHelper.getContactById(this, "1200")
+//        val result = ContactHelper.getOrganizationDetails(this, "1200")
+//        val result = ContactHelper.getOrganizationDetails(this, "30827")
 //        Log.e("MainActivity", "Single Contact: $result")
 
         /* Getting picture of contact region*/
@@ -121,7 +124,7 @@ class MainActivity : AppCompatActivity() {
 //        Log.e("MainActivity", "Single Contact: $result")
 
 
-//        callLogs()
+        callLogs()
     }
 
 
@@ -132,12 +135,13 @@ class MainActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         calendar.time = Date()
         calendar.add(Calendar.DAY_OF_MONTH, -5)
-        val previousDate = System.currentTimeMillis()- 5 * (24*60*60*1000)
+        val previousDate = System.currentTimeMillis() - 5 * (24 * 60 * 60 * 1000)
 
         calendar.timeInMillis
 
         val map = mapOf(
-            Pair("dateFrom","${previousDate}"),
+            Pair("number","03431420420"),
+            Pair("dateFrom", "$previousDate"),
             Pair("dateTo", "${System.currentTimeMillis()}")
         )
         val logs = LogsHelper.getSelectiveLogs(this, map)

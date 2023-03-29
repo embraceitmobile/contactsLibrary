@@ -55,7 +55,8 @@ object LogsHelper {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun queryLogs(context: Context, query: String?): MutableList<CallLogRecord> {
         val entries: MutableList<CallLogRecord> = ArrayList()
-        val subscriptionManager = ContextCompat.getSystemService(context, SubscriptionManager::class.java)
+        val subscriptionManager =
+            ContextCompat.getSystemService(context, SubscriptionManager::class.java)
         var subscriptions: List<SubscriptionInfo>? = null
         if (subscriptionManager != null) {
             subscriptions = subscriptionManager.activeSubscriptionInfoList
@@ -71,13 +72,13 @@ object LogsHelper {
 
                 while (cursor != null && cursor.moveToNext()) {
                     var number = cursor.getString(11)
-                    if(number ==  null){
+                    if (number == null) {
                         number = cursor.getString(1)
                     }
-                    val contactId = "0"//ContactHelper.getContactId(context, number)
+                    val contactId = ContactHelper.getContactId(context, number)
 
                     val record = CallLogRecord(
-                        id  = cursor.getString(10),
+                        id = cursor.getString(10),
                         name = cursor.getString(5),
                         number = cursor.getString(1),
                         formattedNumber = cursor.getString(0),
@@ -123,14 +124,16 @@ object LogsHelper {
         if (!number.isNullOrEmpty()) {
             val namePredicates: MutableList<String> = ArrayList()
             generatePredicate(namePredicates, CallLog.Calls.NUMBER, OPERATOR_LIKE, number)
-            generatePredicate(namePredicates,
+            generatePredicate(
+                namePredicates,
                 CallLog.Calls.CACHED_MATCHED_NUMBER,
                 OPERATOR_LIKE,
-                number)
+                number
+            )
             generatePredicate(namePredicates, CallLog.Calls.PHONE_ACCOUNT_ID, OPERATOR_LIKE, number)
-            predicates.add("(${namePredicates.joinToString( " OR ")}")
+            predicates.add("${namePredicates.joinToString(" OR ")}")
         }
-        return  queryLogs(context, "${predicates.joinToString(" AND ")}")
+        return queryLogs(context, "${predicates.joinToString(" AND ")}")
     }
 
     private fun generatePredicate(
@@ -186,26 +189,38 @@ object LogsHelper {
             callback()
         }
     }
-    fun removeLogsByDate(context: Context, dateFrom:String, dateTo:String, callback: () -> Unit) {
+
+    fun removeLogsByDate(context: Context, dateFrom: String, dateTo: String, callback: () -> Unit) {
         ensureBackgroundThread {
             val uri = CallLog.Calls.CONTENT_URI
-            val selection = "${CallLog.Calls.DATE} >= ${dateFrom} AND ${CallLog.Calls.DATE} <= ${dateTo}"
+            val selection =
+                "${CallLog.Calls.DATE} >= ${dateFrom} AND ${CallLog.Calls.DATE} <= ${dateTo}"
             context.contentResolver.delete(uri, selection, null)
             callback()
         }
     }
+
     fun removeLogsByNumber(context: Context, number: String, callback: () -> Unit) {
         ensureBackgroundThread {
             val uri = CallLog.Calls.CONTENT_URI
-            val selection = "${CallLog.Calls.NUMBER} LIKE '%${number}%' OR ${CallLog.Calls.CACHED_MATCHED_NUMBER} LIKE '%${number}%'"
+            val selection =
+                "${CallLog.Calls.NUMBER} LIKE '%${number}%' OR ${CallLog.Calls.CACHED_MATCHED_NUMBER} LIKE '%${number}%'"
             context.contentResolver.delete(uri, selection, null)
             callback()
         }
     }
-    fun removeLogsOfNumberAtDate(context: Context, number: String, dateFrom:String, dateTo:String, callback: () -> Unit) {
+
+    fun removeLogsOfNumberAtDate(
+        context: Context,
+        number: String,
+        dateFrom: String,
+        dateTo: String,
+        callback: () -> Unit
+    ) {
         ensureBackgroundThread {
             val uri = CallLog.Calls.CONTENT_URI
-            val selection = "(${CallLog.Calls.NUMBER} LIKE '%${number}%' OR ${CallLog.Calls.CACHED_MATCHED_NUMBER} LIKE '%${number}%') AND ${CallLog.Calls.DATE} >= ${dateFrom} AND ${CallLog.Calls.DATE} <= ${dateTo}"
+            val selection =
+                "(${CallLog.Calls.NUMBER} LIKE '%${number}%' OR ${CallLog.Calls.CACHED_MATCHED_NUMBER} LIKE '%${number}%') AND ${CallLog.Calls.DATE} >= ${dateFrom} AND ${CallLog.Calls.DATE} <= ${dateTo}"
             context.contentResolver.delete(uri, selection, null)
             callback()
         }

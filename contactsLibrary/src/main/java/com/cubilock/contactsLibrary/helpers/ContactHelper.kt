@@ -1174,4 +1174,45 @@ object ContactHelper {
 
         return id
     }
+
+    @SuppressLint("Range")
+    fun getOrganizationDetails(context: Context?, contactId: String) {
+
+        val projection = arrayOf(
+            ContactsContract.Data.CONTACT_ID,
+            Organization.COMPANY,
+            Organization.DATA2,
+            Organization.TITLE,
+            Organization.JOB_DESCRIPTION,
+            Organization.DEPARTMENT,
+            Organization.PHONETIC_NAME,
+        )
+
+        val selection = ContactsContract.Data.MIMETYPE + " = ? AND " +
+                ContactsContract.Data.CONTACT_ID + " = ? "
+        val selectionArgs = arrayOf(
+            Organization.CONTENT_ITEM_TYPE,
+            contactId
+        )
+
+        val cursor = context?.contentResolver?.query(
+            ContactsContract.Data.CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
+
+        if (cursor != null && cursor.moveToFirst()) {
+            val company = cursor.getString(cursor.getColumnIndex(Organization.COMPANY))
+            val title = cursor.getString(cursor.getColumnIndex(Organization.TITLE))
+            val jobDescription = cursor.getString(cursor.getColumnIndex(Organization.JOB_DESCRIPTION))
+            val department = cursor.getString(cursor.getColumnIndex(Organization.DEPARTMENT))
+            val pName = cursor.getString(cursor.getColumnIndex(Organization.PHONETIC_NAME))
+            val data2 = cursor.getString(cursor.getColumnIndex(Organization.DATA2))
+            Log.d("Contact Info", "Company: $company, Title: $title")
+            cursor.close()
+        }
+    }
+
 }
