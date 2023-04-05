@@ -587,10 +587,12 @@ object ContactHelper {
     //fetches all list with all data of each contact
     @SuppressLint("Range")
     fun getContacts(ctx: Context, loadPicture: Boolean = false): List<LibraryContact>? {
+
         val list: MutableList<LibraryContact> = ArrayList()
         val contentResolver = ctx.contentResolver
         val cursor =
             contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
+
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
@@ -604,6 +606,7 @@ object ContactHelper {
                     val emails = getEmailFromContact(contentResolver, id)
                     val address = getAddressFromContact(contentResolver, id)
                     val workInfo = getWorkInfoFromContact(contentResolver, id)
+
                     val profilePicture = if (loadPicture) {
                         getPictureFromContact(contentResolver, id)
                     } else {

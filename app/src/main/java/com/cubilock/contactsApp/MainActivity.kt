@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
+import kotlin.system.measureTimeMillis
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,13 +51,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }*/
-        val dateFrom = SimpleDateFormat("dd-MM-yyyy").parse("09-01-2023")
-        val dateTo = SimpleDateFormat("dd-MM-yyyy").parse("14-01-2023")
-        LogsHelper.removeLogsByDate(
-            this@MainActivity,
-            dateFrom.time.toString(),
-            dateTo.time.toString(),
-            {})
+//        val dateFrom = SimpleDateFormat("dd-MM-yyyy").parse("09-01-2023")
+//        val dateTo = SimpleDateFormat("dd-MM-yyyy").parse("14-01-2023")
+//        LogsHelper.removeLogsByDate(
+//            this@MainActivity,
+//            dateFrom.time.toString(),
+//            dateTo.time.toString(),
+//            {})
 
 
 //
@@ -108,9 +109,19 @@ class MainActivity : AppCompatActivity() {
 //        Log.e("MainActivity","contactExists: $contactExist")
 
         /* Getting contact list region */
-        /*Log.e("MainActivity", "before Loading")
-        val list = ContactHelper.getContacts(this)
-        Log.e("MainActivity", "After loading list: ${list}")*/
+        /*Log.e("MainActivity", "before Loading")*/
+        val time1 = measureTimeMillis {
+            val list = ContactHelper.getContactsLight(this)
+            Log.e("MainActivity", "After loading list: $list")
+        }
+        Log.e("MainActivity", "Time taken to produce list: $time1")
+
+//        val time = measureTimeMillis {
+//            val list = LogsHelper.queryLogs(this, null)
+//            Log.e("MainActivity", "After loading list: $list")
+//        }
+//        Log.e("MainActivity", "Time taken to produce list: $time")
+
 
         /* Getting single contact region*/
 //        Log.e("MainActivity", "Before getting Single Contact")
@@ -123,8 +134,11 @@ class MainActivity : AppCompatActivity() {
 //        val result = ContactHelper.getPictureForContact(this, "6")
 //        Log.e("MainActivity", "Single Contact: $result")
 
+//        val time = measureTimeMillis {
+//            callLogs()
+//        }
+//        Log.e("MainActivity", "Time taken to produce list: $time")
 
-        callLogs()
     }
 
 
@@ -135,17 +149,17 @@ class MainActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         calendar.time = Date()
         calendar.add(Calendar.DAY_OF_MONTH, -5)
-        val previousDate = System.currentTimeMillis() - 5 * (24 * 60 * 60 * 1000)
+        val previousDate = System.currentTimeMillis() - 180 * (24 * 60 * 60 * 1000)
 
         calendar.timeInMillis
 
         val map = mapOf(
-            Pair("number","03431420420"),
-            Pair("dateFrom", "$previousDate"),
+//            Pair("number", "03431420420"),
+            Pair("dateFrom", "1665123964343"),
             Pair("dateTo", "${System.currentTimeMillis()}")
         )
         val logs = LogsHelper.getSelectiveLogs(this, map)
-        Log.e("MainActivity", "callLogs $logs")
+        Log.e("MainActivity", "callLogs ${logs.size}")
     }
 }
 

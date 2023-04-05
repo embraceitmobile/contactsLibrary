@@ -75,7 +75,7 @@ object LogsHelper {
                     if (number == null) {
                         number = cursor.getString(1)
                     }
-                    val contactId = ContactHelper.getContactId(context, number)
+                    val contactId = "0" // ContactHelper.getContactId(context, number)
 
                     val record = CallLogRecord(
                         id = cursor.getString(10),
