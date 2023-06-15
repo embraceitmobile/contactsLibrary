@@ -77,6 +77,10 @@ object LogsHelper {
                     }
                     val contactId = "0" // ContactHelper.getContactId(context, number)
 
+                    val subscriptionId = cursor.getString(9)
+                    val simName = getSimDisplayName(subscriptions, subscriptionId)?.first
+                    val simSlot = getSimDisplayName(subscriptions, subscriptionId)?.second
+
                     val record = CallLogRecord(
                         id = cursor.getString(10),
                         name = cursor.getString(5),
@@ -89,9 +93,10 @@ object LogsHelper {
                         cachedNumberLabel = cursor.getString(7),
                         cachedMatchedNumber = cursor.getString(8),
                         cachedNormalizedNumber = cursor.getString(11),
-                        simDisplayName = getSimDisplayName(subscriptions, cursor.getString(9)),
-                        phoneAccountId = cursor.getString(9),
-                        contactId = contactId
+                        simDisplayName = simName,
+                        phoneAccountId = simSlot,
+                        contactId = contactId,
+                        subscriptionId = cursor.getString(9)
                     )
                     entries.add(record)
                 }
@@ -156,14 +161,32 @@ object LogsHelper {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     private fun getSimDisplayName(
         subscriptions: List<SubscriptionInfo>?,
-        accountId: String?,
-    ): String? {
-        if (accountId != null && subscriptions != null) {
+        accountId: String,
+    ): Pair<String, String>? {
+
+        val isLongId = accountId.length > 2
+        var smallAccountId: String? = null
+        var longAccountId: String? = null;
+
+        if (!isLongId) {
+            smallAccountId = accountId
+        } else {
+            longAccountId = accountId
+        }
+
+        if (subscriptions != null) {
+
             for (info in subscriptions) {
-                if (Integer.toString(info.subscriptionId) == accountId ||
-                    accountId.contains(info.iccId)
+                Log.i("subscription id", "id: ${info.subscriptionId}")
+
+                if (!isLongId && info.subscriptionId == smallAccountId?.let { Integer.parseInt(it) }
                 ) {
-                    return info.displayName.toString()
+                    return Pair(info.displayName.toString(), info.simSlotIndex.toString())
+                }
+
+                if (isLongId && info.iccId == longAccountId
+                ) {
+                    return Pair(info.displayName.toString(), info.simSlotIndex.toString())
                 }
             }
         }
