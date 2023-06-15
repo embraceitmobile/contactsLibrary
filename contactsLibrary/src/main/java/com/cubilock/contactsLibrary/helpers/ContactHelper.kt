@@ -1107,4 +1107,71 @@ object ContactHelper {
         }
         return false
     }
+
+    @SuppressLint("Range")
+    fun getOrganizationDetails(context: Context?, contactId: String) {
+
+        val projection = arrayOf(
+            ContactsContract.Data.CONTACT_ID,
+            Organization.COMPANY,
+            Organization.TITLE
+        )
+
+        val selection = ContactsContract.Data.MIMETYPE + " = ? AND " +
+                ContactsContract.Data.CONTACT_ID + " = ? AND " +
+                Organization.COMPANY + " IS NOT NULL"
+
+        val selectionArgs = arrayOf(
+            Organization.CONTENT_ITEM_TYPE,
+            contactId
+        )
+
+        val cursor = context?.contentResolver?.query(
+            ContactsContract.Data.CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
+
+        if (cursor != null && cursor.moveToFirst()) {
+            val company = cursor.getString(cursor.getColumnIndex(Organization.COMPANY))
+            val title = cursor.getString(cursor.getColumnIndex(Organization.TITLE))
+            Log.d("Contact Info", "Company: $company, Title: $title")
+            cursor.close()
+        }
+    }
+
+    @SuppressLint("Range")
+    fun getOrgDtails(context: Context?, contactId: String) {
+        val projection = arrayOf(
+            ContactsContract.Data.CONTACT_ID,
+            Organization.COMPANY,
+            Organization.TITLE
+        )
+
+        val selection = ContactsContract.Data.MIMETYPE + " = ? AND " +
+                ContactsContract.Data.CONTACT_ID + " = ? AND " +
+                Organization.COMPANY + " IS NOT NULL"
+
+        val selectionArgs = arrayOf<String>(
+            Organization.CONTENT_ITEM_TYPE,
+            java.lang.String.valueOf(contactId)
+        )
+
+        val cursor = context?.contentResolver?.query(
+            ContactsContract.Data.CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
+
+        if (cursor != null && cursor.moveToFirst()) {
+            val company = cursor.getString(cursor.getColumnIndex(Organization.COMPANY))
+            val title = cursor.getString(cursor.getColumnIndex(Organization.TITLE))
+            Log.d("Contact Info", "Company: $company, Title: $title")
+            cursor.close()
+        }
+    }
 }

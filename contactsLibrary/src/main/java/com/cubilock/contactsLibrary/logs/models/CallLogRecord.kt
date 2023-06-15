@@ -15,4 +15,5 @@ data class CallLogRecord(
     var simDisplayName: String? = "",
     var phoneAccountId: String? = "",
     var contactId: String? = "",
+    var subscriptionId: String? = "",
 )

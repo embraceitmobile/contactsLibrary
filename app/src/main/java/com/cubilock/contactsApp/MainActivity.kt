@@ -50,9 +50,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }*/
-        val dateFrom = SimpleDateFormat("dd-MM-yyyy").parse("09-01-2023")
-        val dateTo = SimpleDateFormat("dd-MM-yyyy").parse("14-01-2023")
-        LogsHelper.removeLogsByDate(this@MainActivity, dateFrom.time.toString(), dateTo.time.toString(), {})
+//        val dateFrom = SimpleDateFormat("dd-MM-yyyy").parse("09-01-2023")
+//        val dateTo = SimpleDateFormat("dd-MM-yyyy").parse("14-01-2023")
+//        LogsHelper.removeLogsByDate(this@MainActivity, dateFrom.time.toString(), dateTo.time.toString(), {})
 
 
 
@@ -83,9 +83,9 @@ class MainActivity : AppCompatActivity() {
 
         /* get contact by Number */
 //        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
-//        val contactToUpdate = LibraryContact(id = "19", name = LibraryName(displayName = "Test 21", firstName = "Test", lastName = "21"), numbers = numbersToUpdate)
-        /*val result = ContactHelper.getContactByPhoneNumber(this, "0323430243")
-        Log.e("MainActivity", "getContactByPhoneNumber: $result")*/
+//        val contactToUpdate = LibraryContact(id = "19", name = LibraryName(displayName = "Test 21", firstName = "Test", lastName = "21"), numbers = numbersToUpdate)*/
+//        val result = ContactHelper.getContactByPhoneNumber(this, "0343 1242424")
+//        Log.e("MainActivity", "getContactByPhoneNumber: $result")
 
         /* update contact region */
 //        val numbersToUpdate = listOf(LibraryNumber("365", CategoryType.MOBILE.value))
@@ -113,7 +113,9 @@ class MainActivity : AppCompatActivity() {
 
         /* Getting single contact region*/
 //        Log.e("MainActivity", "Before getting Single Contact")
-//        val result = ContactHelper.getContactById(this, "22")
+//        val result = ContactHelper.getOrgDtails(this, "30827")
+//        val result = ContactHelper.getContactById(this, "62")
+//        val result = ContactHelper.getOrganizationDetails(this, "62")
 //        Log.e("MainActivity", "Single Contact: $result")
 
         /* Getting picture of contact region*/
@@ -121,7 +123,7 @@ class MainActivity : AppCompatActivity() {
 //        Log.e("MainActivity", "Single Contact: $result")
 
 
-//        callLogs()
+        callLogs()
     }
 
 
@@ -137,10 +139,13 @@ class MainActivity : AppCompatActivity() {
         calendar.timeInMillis
 
         val map = mapOf(
-            Pair("dateFrom","${previousDate}"),
+//            Pair("number","080066"),
+            Pair("number","036570 "),
+            Pair("dateFrom","$previousDate"),
             Pair("dateTo", "${System.currentTimeMillis()}")
         )
-        val logs = LogsHelper.getSelectiveLogs(this, map)
+//        val logs = LogsHelper.getSelectiveLogs(this, map)
+        val logs = LogsHelper.queryLogs(this, null )
         Log.e("MainActivity", "callLogs $logs")
     }
 }
