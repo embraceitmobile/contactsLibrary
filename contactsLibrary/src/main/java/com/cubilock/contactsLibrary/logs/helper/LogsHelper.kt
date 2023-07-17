@@ -1,18 +1,24 @@
 package com.cubilock.contactsLibrary.logs.helper
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.provider.CallLog
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.cubilock.contactsLibrary.extensions.ensureBackgroundThread
 import com.cubilock.contactsLibrary.extensions.getQuestionMarks
+import com.cubilock.contactsLibrary.extensions.times
+import com.cubilock.contactsLibrary.helpers.ContactHelper
 import com.cubilock.contactsLibrary.logs.models.CallLogRecord
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 object LogsHelper {
@@ -45,7 +51,7 @@ object LogsHelper {
         CallLog.Calls.CACHED_NORMALIZED_NUMBER
     )
 
-    @SuppressLint("MissingPermission", "Range")
+    @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun queryLogs(context: Context, query: String?): MutableList<CallLogRecord> {
         val entries: MutableList<CallLogRecord> = ArrayList()
@@ -61,7 +67,7 @@ object LogsHelper {
                 CURSOR_PROJECTION,
                 query,
                 null,
-                null
+                CallLog.Calls.DATE + " DESC"
             ).use { cursor ->
 
                 while (cursor != null && cursor.moveToNext()) {
@@ -69,16 +75,11 @@ object LogsHelper {
                     if (number == null) {
                         number = cursor.getString(1)
                     }
-                    val contactId = "0"//ContactHelper.getContactId(context, number)
-
+                    val contactId = "0" // ContactHelper.getContactId(context, number)
 
                     val subscriptionId = cursor.getString(9)
-
-                    Log.d("cursor.getString(9)", cursor.getString(9))
                     val simName = getSimDisplayName(subscriptions, subscriptionId)?.first
                     val simSlot = getSimDisplayName(subscriptions, subscriptionId)?.second
-                    val count = cursor.columnCount
-                    Log.d("getColumnCount():", count.toString())
 
                     val record = CallLogRecord(
                         id = cursor.getString(10),
@@ -125,7 +126,6 @@ object LogsHelper {
         generatePredicate(predicates, CallLog.Calls.DURATION, OPERATOR_LT, durationTo)
         generatePredicate(predicates, CallLog.Calls.CACHED_NAME, OPERATOR_LIKE, name)
         generatePredicate(predicates, CallLog.Calls.TYPE, OPERATOR_EQUALS, type)
-
         if (!number.isNullOrEmpty()) {
             val namePredicates: MutableList<String> = ArrayList()
             generatePredicate(namePredicates, CallLog.Calls.NUMBER, OPERATOR_LIKE, number)
@@ -136,7 +136,7 @@ object LogsHelper {
                 number
             )
             generatePredicate(namePredicates, CallLog.Calls.PHONE_ACCOUNT_ID, OPERATOR_LIKE, number)
-            predicates.add("(${namePredicates.joinToString(" OR ")}")
+            predicates.add("${namePredicates.joinToString(" OR ")}")
         }
         return queryLogs(context, "${predicates.joinToString(" AND ")}")
     }
@@ -165,7 +165,6 @@ object LogsHelper {
     ): Pair<String, String>? {
 
         val isLongId = accountId.length > 2
-
         var smallAccountId: String? = null
         var longAccountId: String? = null;
 
@@ -175,13 +174,12 @@ object LogsHelper {
             longAccountId = accountId
         }
 
-
-        if (accountId != null && subscriptions != null) {
+        if (subscriptions != null) {
 
             for (info in subscriptions) {
                 Log.i("subscription id", "id: ${info.subscriptionId}")
 
-                if (!isLongId && info.subscriptionId == Integer.parseInt(smallAccountId)
+                if (!isLongId && info.subscriptionId == smallAccountId?.let { Integer.parseInt(it) }
                 ) {
                     return Pair(info.displayName.toString(), info.simSlotIndex.toString())
                 }
