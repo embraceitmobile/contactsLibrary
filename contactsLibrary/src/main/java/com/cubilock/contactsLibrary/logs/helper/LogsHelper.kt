@@ -3,7 +3,9 @@ package com.cubilock.contactsLibrary.logs.helper
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.database.ContentObserver
 import android.os.Build
+import android.os.Handler
 import android.os.Looper
 import android.provider.CallLog
 import android.telephony.SubscriptionInfo
@@ -51,6 +53,14 @@ object LogsHelper {
         CallLog.Calls.CACHED_NORMALIZED_NUMBER
     )
 
+//    class CallLogObserver(handler: Handler) : ContentObserver(handler) {
+//
+//        override fun onChange(selfChange: Boolean) {
+//            // This method will be called when there are changes to the call log
+//            // You can update your UI or fetch the new call log entries here
+//        }
+//    }
+
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun queryLogs(context: Context, query: String?): MutableList<CallLogRecord> {
@@ -62,6 +72,17 @@ object LogsHelper {
             subscriptions = subscriptionManager.activeSubscriptionInfoList
         }
         try {
+
+            // val observer = CallLogObserver(Handler(Looper.getMainLooper()))
+            // val contentResolver = context.contentResolver
+
+            // contentResolver.registerContentObserver(
+            //     CallLog.Calls.CONTENT_URI,
+            //     true,
+            //     observer
+            // )
+            // contentResolver.query(
+
             context.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
                 CURSOR_PROJECTION,
@@ -94,10 +115,11 @@ object LogsHelper {
                         cachedMatchedNumber = cursor.getString(8),
                         cachedNormalizedNumber = cursor.getString(11),
                         simDisplayName = simName,
-                        phoneAccountId = simSlot,
+                        phoneAccountId =  (simSlot?.toIntOrNull()?.plus(1)).toString(),
                         contactId = contactId,
                         subscriptionId = cursor.getString(9)
                     )
+                    Log.d("record : ", record.toString())
                     entries.add(record)
                 }
                 cursor?.close()
@@ -177,9 +199,14 @@ object LogsHelper {
         if (subscriptions != null) {
 
             for (info in subscriptions) {
-                Log.i("subscription id", "id: ${info.subscriptionId}")
+                Log.i("getSimDisplayName ", "subscriptionId: ${info.subscriptionId}")
 
                 if (!isLongId && info.subscriptionId == smallAccountId?.let { Integer.parseInt(it) }
+                ) {
+                    return Pair(info.displayName.toString(), info.simSlotIndex.toString())
+                }
+
+                if (!isLongId && (info.simSlotIndex - 1) == smallAccountId?.let { Integer.parseInt(it) }
                 ) {
                     return Pair(info.displayName.toString(), info.simSlotIndex.toString())
                 }
